@@ -5,6 +5,8 @@ import { Footer } from '@/components/site/footer'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useAuth } from '@/components/site/auth-context'
+import Link from 'next/link'
 
 type Analysis = {
   grid?: { rows: number; cols: number; dotCount: number }
@@ -14,20 +16,22 @@ type Analysis = {
 }
 
 export default function RecognitionPage() {
+  const auth = useAuth();
+  const user = auth?.user;
   // Curated Kolam facts and quotes (concise, accurate, and respectful)
   const TIPS = React.useMemo(
     () => [
-      'Kolam (Tamil: கோலம்) means “beauty” or “embellishment”; it’s a threshold art drawn at dawn.',
+      'Kolam (Tamil: கோலம்) means beauty or embellishment; it is a threshold art drawn at dawn.',
       'In Tamil, dot patterns are called Pulli Kolam (pulli = dots); looping knot designs are Sikku Kolam.',
       'Similar traditions exist across India: Telugu Muggu/Muggulu, Kannada and Marathi Rangoli.',
-      'Rice flour is traditionally used so birds and ants can feed—art that also nourishes.',
+      'Rice flour is traditionally used so birds and ants can feed - art that also nourishes.',
       'Kolam designs often encode symmetry, tiling, and fractal-like repetition.',
       'Many kolams start from a pulli (dot) grid and weave continuous lines around them.',
       'Drawing kolam daily is believed to invite prosperity and positive energy into the home.',
       'Sikku kolams trace elegant knots around dots without crossing the drawn line.',
-      'Kolam is ephemeral—wiped by wind and footsteps, then renewed every morning.',
+      'Kolam is ephemeral - wiped by wind and footsteps, then renewed every morning.',
       'Festive kolams can be large, colorful, and highly intricate with seasonal motifs.',
-      'Kolam practice blends math and mindfulness—precision, rhythm, and creativity.',
+      'Kolam practice blends math and mindfulness - precision, rhythm, and creativity.',
       'Eco-friendly pigments and stone powders add color while keeping it biodegradable.'
     ],
     []
@@ -86,12 +90,37 @@ export default function RecognitionPage() {
     return () => window.clearInterval(id)
   }, [loading, TIPS])
 
+  // Redirect to sign-in if user is not authenticated
+  React.useEffect(() => {
+    if (!user && !auth?.loading) {
+      window.location.href = '/signin';
+    }
+  }, [user, auth?.loading]);
+
+  // Show loading or nothing while redirecting
+  if (!user) {
+    return (
+      <div>
+        <Navbar />
+        <main className="container py-10">
+          <div className="max-w-md mx-auto text-center">
+            <Card className="p-8 shadow-xl rounded-2xl border bg-card/80 backdrop-blur-sm">
+              <h1 className="text-3xl font-bold text-primary mb-4">Redirecting...</h1>
+              <p className="text-muted-foreground">Please wait while we redirect you to sign in.</p>
+            </Card>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div>
       <Navbar />
       <main className="container py-10">
         <h1 className="text-3xl font-bold">Kolam Recognition</h1>
-        <p className="text-muted-foreground mt-1">Upload a Kolam image. We’ll detect dots, symmetry and classify the style.</p>
+        <p className="text-muted-foreground mt-1">Upload a Kolam image. We'll detect dots, symmetry and classify the style.</p>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <Card>
