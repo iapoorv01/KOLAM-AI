@@ -40,15 +40,18 @@ export default function RecognitionPage() {
 
   const [file, setFile] = React.useState<File | null>(null)
   const [loading, setLoading] = React.useState(false)
-  const [result, setResult] = React.useState<Analysis | null>(null)
+  const [datasetResult, setDatasetResult] = React.useState<Analysis | null>(null)
+  const [geminiResult, setGeminiResult] = React.useState<any | null>(null)
   const [error, setError] = React.useState<string | null>(null)
   const [preview, setPreview] = React.useState<string | null>(null)
   const [progress, setProgress] = React.useState<number>(0)
+  const [reanalyzing, setReanalyzing] = React.useState(false)
   const [tip, setTip] = React.useState<string | null>(null)
 
   const onFile = (f: File | null) => {
     setFile(f)
-    setResult(null)
+  setDatasetResult(null)
+  setGeminiResult(null)
     setError(null)
     setPreview(f ? URL.createObjectURL(f) : null)
   }
@@ -61,8 +64,8 @@ export default function RecognitionPage() {
     if (TIPS.length) {
       setTip(TIPS[Math.floor(Math.random() * TIPS.length)])
     }
-    setError(null)
-    setResult(null)
+  setError(null)
+  setDatasetResult(null)
     try {
       const form = new FormData()
       form.append('image', file)
@@ -72,8 +75,8 @@ export default function RecognitionPage() {
       const t3 = setTimeout(() => setProgress(85), 1600)
       const res = await fetch('/api/analyze', { method: 'POST', body: form })
       if (!res.ok) throw new Error(await res.text())
-      const data = (await res.json()) as Analysis
-      setResult(data)
+  const data = (await res.json()) as Analysis
+  setDatasetResult(data)
     } catch (e: any) {
       setError(e.message || 'Failed to analyze image')
     } finally {
@@ -97,6 +100,14 @@ export default function RecognitionPage() {
       window.location.href = '/signin';
     }
   }, [user, auth?.loading]);
+
+  // Log when Gemini result updates
+  React.useEffect(() => {
+    if (geminiResult) {
+      // eslint-disable-next-line no-console
+      console.log('Gemini result updated:', geminiResult)
+    }
+  }, [geminiResult]);
 
   // Show loading or nothing while redirecting
   if (!user) {
@@ -172,10 +183,10 @@ export default function RecognitionPage() {
               <CardDescription>Interactive insights</CardDescription>
             </CardHeader>
             <CardContent>
-              {!result && <p className="text-sm text-muted-foreground">No results yet.</p>}
-              {result && (
+        {!datasetResult && <p className="text-sm text-muted-foreground">No results yet.</p>}
+        {datasetResult && (
                 <div className="space-y-4">
-                  {result.classification && (
+                {datasetResult.classification && (
                     <div className="rounded-xl border p-4 bg-gradient-to-br from-primary/10 to-accent/10">
                       <div className="flex items-center gap-4">
                         <div className="relative h-16 w-16">
@@ -184,16 +195,16 @@ export default function RecognitionPage() {
                             <path className="text-muted stroke-current" strokeWidth="3" fill="none" pathLength={100}
                               d="M18 2a16 16 0 1 1 0 32a16 16 0 1 1 0-32" opacity="0.2" />
                             <path className="text-primary stroke-current" strokeWidth="3" strokeLinecap="round" fill="none" pathLength={100}
-                              strokeDasharray={`${Math.round((result.classification.confidence) * 100)}, 100`}
+                              strokeDasharray={`${Math.round((datasetResult!.classification.confidence) * 100)}, 100`}
                               d="M18 2a16 16 0 1 1 0 32a16 16 0 1 1 0-32" />
                           </svg>
-                          <div className="absolute inset-0 grid place-items-center text-sm font-semibold">{Math.round(result.classification.confidence * 100)}%</div>
+                          <div className="absolute inset-0 grid place-items-center text-sm font-semibold">{Math.round(datasetResult!.classification.confidence * 100)}%</div>
                         </div>
                         <div>
                           <div className="text-sm uppercase text-muted-foreground">Classification</div>
                           <div className="mt-1 text-xl font-semibold tracking-tight">
-                            {result.classification.label}
-                            <span className="ml-3 text-[10px] uppercase tracking-wider rounded-full bg-secondary/60 px-2 py-0.5">{result.classification.source}</span>
+                            {datasetResult.classification.label}
+                            <span className="ml-3 text-[10px] uppercase tracking-wider rounded-full bg-secondary/60 px-2 py-0.5">{datasetResult.classification.source}</span>
                           </div>
                         </div>
                       </div>
@@ -201,44 +212,140 @@ export default function RecognitionPage() {
                       <div className="mt-3 h-2 w-full rounded-full bg-muted overflow-hidden">
                         <div
                           className="h-full bg-primary"
-                          style={{ width: `${Math.round(result.classification.confidence * 100)}%` }}
-                          title={`${Math.round(result.classification.confidence * 100)}% ${result.classification.label}`}
+                          style={{ width: `${Math.round(datasetResult.classification.confidence * 100)}%` }}
+                            title={`${Math.round(datasetResult.classification.confidence * 100)}% ${datasetResult.classification.label}`}
                         />
                       </div>
                       <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
-                        <span>{Math.round(result.classification.confidence * 100)}% {result.classification.label}</span>
+                        <span>{Math.round(datasetResult.classification.confidence * 100)}% {datasetResult.classification.label}</span>
                         <span>
-                          Other: {Math.max(0, 100 - Math.round(result.classification.confidence * 100))}%
+                          Other: {Math.max(0, 100 - Math.round(datasetResult.classification.confidence * 100))}%
                         </span>
                       </div>
-                      {result.classification.details && (
+                      {datasetResult.classification.details && (
                         <div className="mt-2 text-xs text-muted-foreground space-y-1">
-                          {Object.entries(result.classification.details).map(([k, v]) => (
+                          {Object.entries(datasetResult.classification.details).map(([k, v]) => (
                             <div key={k}>
                               <span className="font-medium">{k}:</span> {String(v)}
                             </div>
                           ))}
                         </div>
                       )}
-                    </div>
-                  )}
-                  {result.grid && (
-                    <div className="rounded-xl border p-4 bg-card/50">
-                      <div className="text-sm uppercase text-muted-foreground">Dot Grid</div>
-                      <div className="mt-2 flex flex-wrap gap-2 text-sm">
-                        <span className="rounded-full bg-secondary/60 px-2 py-0.5">rows: {result.grid.rows}</span>
-                        <span className="rounded-full bg-secondary/60 px-2 py-0.5">cols: {result.grid.cols}</span>
-                        <span className="rounded-full bg-secondary/60 px-2 py-0.5">dots: {result.grid.dotCount}</span>
+                      <div className="mt-3 flex gap-2">
+                        {datasetResult.classification.source !== 'gemini' && (
+                          <Button
+                            onClick={async () => {
+                              if (!file) return
+                              setReanalyzing(true)
+                              setProgress(10)
+                              try {
+                                const form = new FormData()
+                                form.append('image', file)
+                                const t1 = setTimeout(() => setProgress(40), 300)
+                                const t2 = setTimeout(() => setProgress(70), 900)
+                                const res = await fetch('/api/analyze/gemini', { method: 'POST', body: form })
+                                clearTimeout(t1)
+                                clearTimeout(t2)
+                                if (!res.ok) {
+                                  const text = await res.text()
+                                  throw new Error(text || 'Gemini reanalysis failed')
+                                }
+                                const data = await res.json()
+                                // Server may return { analysis, raw }; prefer raw for display
+                                const display = data?.raw ?? data?.analysis ?? data
+                                // Save Gemini-specific analysis separately so datasetResult remains unchanged
+                                setGeminiResult(display)
+                                // Log Gemini result for debugging/inspection
+                                // eslint-disable-next-line no-console
+                                console.log('Gemini analysis result:', display)
+                              } catch (e: any) {
+                                setError(e?.message || 'Failed to re-analyze with Gemini')
+                              } finally {
+                                setProgress(100)
+                                setReanalyzing(false)
+                              }
+                            }}
+                            disabled={reanalyzing}
+                          >
+                            {reanalyzing ? 'Re-analyzing  ' : 'Re-analyze with Gemini'}
+                          </Button>
+                        )}
                       </div>
                     </div>
                   )}
-                  {result.symmetry && result.symmetry.length > 0 && (
+                  {datasetResult.grid && (
+                    <div className="rounded-xl border p-4 bg-card/50">
+                      <div className="text-sm uppercase text-muted-foreground">Dot Grid</div>
+                      <div className="mt-2 flex flex-wrap gap-2 text-sm">
+                        <span className="rounded-full bg-secondary/60 px-2 py-0.5">rows: {datasetResult.grid.rows}</span>
+                        <span className="rounded-full bg-secondary/60 px-2 py-0.5">cols: {datasetResult.grid.cols}</span>
+                        <span className="rounded-full bg-secondary/60 px-2 py-0.5">dots: {datasetResult.grid.dotCount}</span>
+                      </div>
+                    </div>
+                  )}
+                  {datasetResult.symmetry && datasetResult.symmetry.length > 0 && (
                     <div className="rounded-xl border p-4 bg-card/50">
                       <div className="text-sm uppercase text-muted-foreground">Symmetry</div>
                       <div className="mt-2 flex flex-wrap gap-2">
-                        {result.symmetry.map((s, i) => (
+                        {datasetResult.symmetry.map((s, i) => (
                           <span key={i} className="rounded-full bg-accent/60 px-2 py-0.5 text-xs">{s}</span>
                         ))}
+                      </div>
+                    </div>
+                  )}
+                  {/* Gemini result displayed below dataset result for comparison */}
+                  {geminiResult && (
+                    <div className="rounded-2xl border p-4 bg-gradient-to-br from-white/3 to-primary/6 shadow-lg">
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm uppercase text-muted-foreground">Gemini Analysis</div>
+                        <div className="text-xs text-muted-foreground">Model: Gemini</div>
+                      </div>
+                      <div className="mt-3 grid gap-3 md:grid-cols-2">
+                        <div className="space-y-2">
+                          <div className="text-sm text-muted-foreground">Type (canonical)</div>
+                          <div className="text-lg font-semibold">{geminiResult.kolamTypeNormalized ?? geminiResult.kolamType}</div>
+                          {geminiResult.reportedName && (
+                            <div className="text-xs text-muted-foreground">Reported name: <span className="font-medium">{geminiResult.reportedName}</span></div>
+                          )}
+
+                          <div className="mt-2 text-sm text-muted-foreground">Principle</div>
+                          <div className="font-medium">{geminiResult.principle}</div>
+
+                          <div className="mt-2 text-sm text-muted-foreground">Symmetry</div>
+                          <div className="flex flex-wrap gap-2">
+                            {(geminiResult.symmetry || []).map((s: string, i: number) => (
+                              <span key={i} className="text-xs bg-accent/10 rounded-full px-2 py-1">{s}</span>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="text-sm text-muted-foreground">Symmetry confidence</div>
+                          <div className="text-lg font-semibold">{typeof geminiResult.symmetryConfidence === 'number' ? Number(geminiResult.symmetryConfidence).toFixed(2) : 'N/A'}</div>
+
+                          <div className="mt-2 text-sm text-muted-foreground">Spiritual</div>
+                          <div className="font-medium">{geminiResult.spiritual ?? 'N/A'}</div>
+                          {geminiResult.spiritualAssessment && (
+                            <div className="mt-1 text-xs text-muted-foreground space-y-1">
+                              <div><span className="font-medium">Home:</span> {geminiResult.spiritualAssessment.home}</div>
+                              <div><span className="font-medium">Shop:</span> {geminiResult.spiritualAssessment.shop}</div>
+                            </div>
+                          )}
+
+                          <div className="mt-2 text-sm text-muted-foreground">Explanation</div>
+                          <div className="text-sm">{geminiResult.explanation}</div>
+                        </div>
+                      </div>
+                      <div className="mt-3 text-xs text-muted-foreground">Comparison: dataset vs Gemini</div>
+                      <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
+                        <div className="p-2 rounded bg-muted/10">
+                          <div className="font-medium">Dataset</div>
+                          <div className="text-muted-foreground">{datasetResult?.classification?.label ?? '—'}</div>
+                        </div>
+                        <div className="p-2 rounded bg-muted/10">
+                          <div className="font-medium">Gemini</div>
+                          <div className="text-muted-foreground">{geminiResult.kolamTypeNormalized ?? geminiResult.kolamType ?? '—'}</div>
+                        </div>
                       </div>
                     </div>
                   )}
