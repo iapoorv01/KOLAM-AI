@@ -438,92 +438,156 @@ export default function RecognitionPage() {
                 </div>
               )}
         {geminiResult && (
-                    <div className="rounded-2xl border p-4 bg-gradient-to-br from-white/3 to-primary/6 shadow-lg">
-                      <div className="flex items-center justify-between">
-                        <div className="text-sm uppercase text-muted-foreground">Gemini Analysis</div>
-                        <div className="text-xs text-muted-foreground">Model: Gemini</div>
+          <div className="rounded-2xl border p-4 bg-gradient-to-br from-white/3 to-primary/6 shadow-lg">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <div className="text-xs uppercase text-muted-foreground mb-1">Gemini Analysis · Model: Gemini</div>
+                {(() => {
+                  // Only promote reportedName when it is meaningful — not a generic "other" placeholder.
+                  const reported = String(geminiResult.reportedName ?? '').trim()
+                  const canonical = String(geminiResult.kolamTypeNormalized ?? geminiResult.kolamType ?? '').trim()
+                  const reportedIsOther = /^\s*other\b/i.test(reported)
+                  const canonicalIsOther = /^\s*other\b/i.test(canonical)
+
+                  if (reported && !reportedIsOther) {
+                    return (
+                      <div className="flex items-center gap-3">
+                        <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight">{reported}</h2>
+                        {!canonicalIsOther && canonical && (
+                          <span className="text-sm rounded-full bg-secondary/20 px-2 py-1 text-muted-foreground">{canonical}</span>
+                        )}
                       </div>
-                      <div className="mt-3 grid gap-3 md:grid-cols-2">
-                        <div className="space-y-2">
-                          <div className="text-sm text-muted-foreground">Type (canonical)</div>
-                          <div className="text-lg font-semibold">{geminiResult.kolamTypeNormalized ?? geminiResult.kolamType}</div>
-                          {geminiResult.reportedName && (
-                            <div className="text-xs text-muted-foreground">Reported name: <span className="font-medium">{geminiResult.reportedName}</span></div>
-                          )}
+                    )
+                  }
 
-                          <div className="mt-2 text-sm text-muted-foreground">Principle</div>
-                          <div className="font-medium">{geminiResult.principle}</div>
+                  if (canonical && !canonicalIsOther) {
+                    return <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight">{canonical}</h2>
+                  }
 
-                          <div className="mt-2 text-sm text-muted-foreground">Symmetry</div>
-                          <div className="flex flex-wrap gap-2">
-                            {(geminiResult.symmetry || []).map((s: string, i: number) => (
-                              <span key={i} className="text-xs bg-accent/10 rounded-full px-2 py-1">{s}</span>
-                            ))}
-                          </div>
-                        </div>
+                  return <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight">Unknown</h2>
+                })()}
+              </div>
+              <div className="hidden sm:flex items-center gap-4">
+                <div className="text-sm text-muted-foreground">Symmetry confidence</div>
+                <div className="text-lg font-bold text-primary">{typeof geminiResult.symmetryConfidence === 'number' ? `${(Number(geminiResult.symmetryConfidence) * 100).toFixed(0)}%` : 'N/A'}</div>
+              </div>
+            </div>
 
-                        <div className="space-y-2">
-                          <div className="text-sm text-muted-foreground">Symmetry confidence</div>
-                          <div className="text-lg font-semibold">{typeof geminiResult.symmetryConfidence === 'number' ? Number(geminiResult.symmetryConfidence).toFixed(2) : 'N/A'}</div>
+            <div className="mt-4 grid gap-4 sm:grid-cols-3">
+              <div className="sm:col-span-1 flex flex-col items-center gap-3">
+                <div className="rounded-lg overflow-hidden w-40 h-40 flex items-center justify-center bg-muted">
+                  {preview ? (
+                    // Use client preview if available
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={preview} alt="preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="text-xs text-muted-foreground px-3">No preview</div>
+                  )}
+                </div>
+                {/* mobile-only symmetry moved below Principle for better layout */}
+                {(() => {
+                  const reported = String(geminiResult.reportedName ?? '').trim()
+                  const canonical = String(geminiResult.kolamTypeNormalized ?? geminiResult.kolamType ?? '').trim()
+                  const reportedIsOther = /^\s*other\b/i.test(reported)
+                  const showReported = reported && !reportedIsOther
+                  const label = showReported ? 'Reported' : 'Type'
+                  const value = showReported ? reported : (canonical || 'Unknown')
+                  return (
+                    <div className="text-center">
+                      <div className="text-xs text-muted-foreground">{label}</div>
+                      <div className="text-sm font-medium">{value}</div>
+                    </div>
+                  )
+                })()}
+              </div>
 
-                          <div className="mt-2 text-sm text-muted-foreground">Spiritual</div>
-                          <div className="font-medium">{geminiResult.spiritual ?? 'N/A'}</div>
-                          {geminiResult.spiritualAssessment && (
-                            <div className="mt-1 text-xs text-muted-foreground space-y-1">
-                              <div><span className="font-medium">Home:</span> {geminiResult.spiritualAssessment.home}</div>
-                              <div><span className="font-medium">Shop:</span> {geminiResult.spiritualAssessment.shop}</div>
-                            </div>
-                          )}
+                <div className="sm:col-span-2 grid gap-3">
+                <div>
+                  <div className="text-sm text-muted-foreground">Principle</div>
+                  <div className="text-base font-semibold">{geminiResult.principle ?? '—'}</div>
+                </div>
+                {/* Mobile-only symmetry confidence: appears below Principle on small screens */}
+                <div className="sm:hidden mt-2 text-sm">
+                  <div className="text-xs text-muted-foreground">Symmetry confidence</div>
+                  <div className="text-sm font-bold text-primary">{typeof geminiResult.symmetryConfidence === 'number' ? `${(Number(geminiResult.symmetryConfidence) * 100).toFixed(0)}%` : 'N/A'}</div>
+                </div>
 
-                          <div className="mt-2 text-sm text-muted-foreground">Explanation</div>
-                          <div className="text-sm">{geminiResult.explanation}</div>
-                        </div>
-                      </div>
-                      <div className="mt-3 flex gap-2">
-                        <Button
-                          onClick={async () => {
-                            if (!file) return
-                            setReanalyzing(true)
-                            setProgress(10)
-                            try {
-                              const form = new FormData()
-                              form.append('image', file)
-                              const t1 = setTimeout(() => setProgress(40), 300)
-                              const t2 = setTimeout(() => setProgress(70), 900)
-                              const res = await fetch('/api/analyze', { method: 'POST', body: form })
-                              clearTimeout(t1)
-                              clearTimeout(t2)
-                              if (!res.ok) {
-                                const text = await res.text()
-                                throw new Error(text || 'Dataset reanalysis failed')
-                              }
-                              const data = (await res.json()) as Analysis
-                              setDatasetResult(data)
-                            } catch (e: any) {
-                              setError(e?.message || 'Failed to re-analyze with dataset')
-                            } finally {
-                              setProgress(100)
-                              setReanalyzing(false)
-                            }
-                          }}
-                          disabled={reanalyzing}
-                        >
-                          {reanalyzing ? 'Re-analyzing…' : 'Re-analyze with Dataset'}
-                        </Button>
-                      </div>
-                      <div className="mt-3 text-xs text-muted-foreground">Comparison: dataset vs Gemini</div>
-                      <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
-                        <div className="p-2 rounded bg-muted/10">
-                          <div className="font-medium">Dataset</div>
-                          <div className="text-muted-foreground">{datasetResult?.classification?.label ?? '—'}</div>
-                        </div>
-                        <div className="p-2 rounded bg-muted/10">
-                          <div className="font-medium">Gemini</div>
-                          <div className="text-muted-foreground">{geminiResult.kolamTypeNormalized ?? geminiResult.kolamType ?? '—'}</div>
-                        </div>
-                      </div>
+                <div>
+                  <div className="text-sm text-muted-foreground">Symmetry</div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {(geminiResult.symmetry || []).length === 0 ? (
+                      <span className="text-xs text-muted-foreground">None detected</span>
+                    ) : (
+                      (geminiResult.symmetry || []).map((s: string, i: number) => (
+                        <span key={i} className="inline-flex items-center text-xs font-medium bg-accent/10 text-accent rounded-full px-2 py-1">{s}</span>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-sm text-muted-foreground">Spiritual / Context</div>
+                  <div className="mt-1 text-sm">{geminiResult.spiritual ?? 'Not available'}</div>
+                  {geminiResult.spiritualAssessment && (
+                    <div className="mt-2 text-xs text-muted-foreground grid grid-cols-2 gap-2">
+                      <div className="p-2 rounded bg-muted/10"><div className="font-medium">Home</div><div>{geminiResult.spiritualAssessment.home}</div></div>
+                      <div className="p-2 rounded bg-muted/10"><div className="font-medium">Shop</div><div>{geminiResult.spiritualAssessment.shop}</div></div>
                     </div>
                   )}
+                </div>
+
+                <div>
+                  <div className="text-sm text-muted-foreground">Explanation</div>
+                  <div className="mt-1 text-sm leading-relaxed text-foreground/90">{geminiResult.explanation ?? '—'}</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="text-xs text-muted-foreground">Comparison: dataset vs Gemini</div>
+              <div className="flex items-center gap-2">
+                <div className="px-3 py-1 rounded bg-muted/10 text-xs">
+                  <div className="font-medium">Dataset</div>
+                  <div className="text-muted-foreground">{datasetResult?.classification?.label ?? '—'}</div>
+                </div>
+                <div className="px-3 py-1 rounded bg-muted/10 text-xs">
+                  <div className="font-medium">Gemini</div>
+                  <div className="text-muted-foreground">{geminiResult.kolamTypeNormalized ?? geminiResult.kolamType ?? '—'}</div>
+                </div>
+                <Button
+                  onClick={async () => {
+                    if (!file) return
+                    setReanalyzing(true)
+                    setProgress(10)
+                    try {
+                      const form = new FormData()
+                      form.append('image', file)
+                      const t1 = setTimeout(() => setProgress(40), 300)
+                      const t2 = setTimeout(() => setProgress(70), 900)
+                      const res = await fetch('/api/analyze', { method: 'POST', body: form })
+                      clearTimeout(t1)
+                      clearTimeout(t2)
+                      if (!res.ok) {
+                        const text = await res.text()
+                        throw new Error(text || 'Dataset reanalysis failed')
+                      }
+                      const data = (await res.json()) as Analysis
+                      setDatasetResult(data)
+                    } catch (e: any) {
+                      setError(e?.message || 'Failed to re-analyze with dataset')
+                    } finally {
+                      setProgress(100)
+                      setReanalyzing(false)
+                    }
+                  }}
+                  disabled={reanalyzing}
+                >
+                  {reanalyzing ? 'Re-analyzing…' : 'Re-analyze with Dataset'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
             </CardContent>
           </Card>
         </div>
