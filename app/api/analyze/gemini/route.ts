@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import fetch from 'node-fetch'
 import fs from 'fs'
 import path from 'path'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
 type Analysis = {
   kolamType?: string
@@ -40,20 +41,9 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    // Import the Google Generative AI client dynamically. If it's not
-    // installed, return 501 and instruct how to configure it.
-    let GoogleGenerativeAI: any = null
-    try {
-      // Use eval to avoid bundler static analysis; this will import at the runtime.
-      // @ts-ignore runtime import via eval
-      const mod = await eval('import("@google/generative-ai")')
-      GoogleGenerativeAI = (mod as any).GoogleGenerativeAI
-    } catch (importErr) {
-      return NextResponse.json({ error: 'Gemini client not installed. Run: npm install @google/generative-ai and set GEMINI_API_KEY.' }, { status: 501 })
-    }
-
+    // Use the statically imported GoogleGenerativeAI client
     if (!GoogleGenerativeAI) {
-      return NextResponse.json({ error: 'Gemini client unavailable' }, { status: 501 })
+      return NextResponse.json({ error: 'Gemini client not available. Ensure @google/generative-ai is installed and listed in package.json.' }, { status: 501 })
     }
 
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY || '')
