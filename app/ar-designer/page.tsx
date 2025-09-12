@@ -6,13 +6,26 @@ import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
 import { startKolamAR } from "@/lib/ar-kolam-webxr";
 import { startKolamARjs } from "@/lib/ar-kolam-arjs";
+// import { removeBackground } from "@/lib/bodypix-loader";
 ;
 
 export default function ARKolamDesigner() {
   const [kolamImg, setKolamImg] = useState<string | null>(null);
   const [arSupported, setArSupported] = useState<boolean | null>(null);
   const [imgError, setImgError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load AR image from sessionStorage if redirected from creation page
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const arImg = sessionStorage.getItem('kolam_ar_image');
+      if (arImg) {
+        setKolamImg(arImg);
+        sessionStorage.removeItem('kolam_ar_image');
+      }
+    }
+  }, []);
 
   // Check for WebXR support
   useEffect(() => {
@@ -27,43 +40,37 @@ export default function ARKolamDesigner() {
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     setImgError(null);
+    setLoading(true);
     const file = e.target.files?.[0];
-    if (file) {
-      console.log('File selected:', file);
-      const reader = new FileReader();
-      reader.onload = async (ev) => {
-        const img = new window.Image();
-        img.src = ev.target?.result as string;
-        img.onload = async () => {
-          try {
-            // Remove background
- 
-            // Convert Blob to data URL for preview and AR
-;
-            setKolamImg(img.src);
-            setImgError(null);
-            console.log('Background removed, preview set');
-          } catch (err) {
-            console.warn('Background removal failed:', err);
-            // Fallback: use original image if background removal fails
-            setKolamImg(img.src);
-            setImgError('Background removal failed, showing original image.');
-          }
-        };
-        img.onerror = () => {
-          setImgError('Failed to load image preview.');
-          setKolamImg(null);
-        };
-      };
-      reader.onerror = () => {
-        setImgError('Failed to read image file.');
-        setKolamImg(null);
-      };
-      reader.readAsDataURL(file);
-    } else {
+    if (!file) {
       setImgError('No file selected.');
       setKolamImg(null);
+      setLoading(false);
+      return;
     }
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/removebackground', {
+        method: 'POST',
+        body: formData,
+      });
+      if (!res.ok) {
+        const error = await res.json();
+        setImgError(error.error || 'Background removal failed.');
+        setKolamImg(null);
+        setLoading(false);
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      setKolamImg(url);
+      setImgError(null);
+    } catch (err) {
+      setImgError('Background removal failed, showing original image.');
+      setKolamImg(null);
+    }
+    setLoading(false);
   }
 
   return (
@@ -84,7 +91,11 @@ export default function ARKolamDesigner() {
             ref={fileInputRef}
             onChange={handleFileChange}
             className="mb-2"
+            disabled={loading}
           />
+          {loading && (
+            <div className="text-blue-600 text-sm mb-2">Removing background, please wait…</div>
+          )}
           {imgError && (
             <div className="text-red-600 text-sm mb-2">{imgError}</div>
           )}

@@ -15,6 +15,7 @@ interface Post {
   image_url: string;
   description: string;
   profiles?: Profile;
+  loading?: boolean;
 }
 
 interface LeaderboardUser {
@@ -129,6 +130,39 @@ export function CommunityFeed() {
               <span className="text-xs text-teal-700 font-bold">{likes[post.id] || 0} Likes</span>
               <Button size="sm" variant="outline" asChild>
                 <a href={post.image_url} download>Download</a>
+              </Button>
+              <Button size="sm" className="bg-purple-600 text-white" disabled={!!post.loading} onClick={async () => {
+                setPosts(posts => posts.map(p => p.id === post.id ? { ...p, loading: true } : p));
+                try {
+                  // Fetch image and send to remove.bg API
+                  const imgRes = await fetch(post.image_url);
+                  const imgBlob = await imgRes.blob();
+                  const formData = new FormData();
+                  formData.append('file', imgBlob, 'kolam.png');
+                  const res = await fetch('/api/removebackground', {
+                    method: 'POST',
+                    body: formData,
+                  });
+                  if (!res.ok) {
+                    alert('Background removal failed.');
+                    setPosts(posts => posts.map(p => p.id === post.id ? { ...p, loading: false } : p));
+                    return;
+                  }
+                  const arBlob = await res.blob();
+                  // Convert blob to base64 data URL
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    const base64Url = reader.result as string;
+                    sessionStorage.setItem('kolam_ar_image', base64Url);
+                    window.location.href = '/ar-designer?from=community';
+                  };
+                  reader.readAsDataURL(arBlob);
+                } catch (err) {
+                  alert('Failed to prepare AR visualization.');
+                  setPosts(posts => posts.map(p => p.id === post.id ? { ...p, loading: false } : p));
+                }
+              }}>
+                {post.loading ? "Preparing AR…" : "Visualize in AR"}
               </Button>
             </div>
             <div className="mt-2">

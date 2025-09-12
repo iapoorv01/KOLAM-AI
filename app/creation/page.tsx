@@ -373,6 +373,40 @@ export default function KolamCreationPage() {
                   <Button type="button" onClick={handleRecreateVariant} disabled={loading} className="w-full">
                     {loading ? "Creating Variant…" : "Recreate Variant"}
                   </Button>
+                  <Button type="button" disabled={loading} onClick={async () => {
+                    setLoading(true);
+                    try {
+                      // Convert image URL to blob
+                      const imgRes = await fetch(resultImage);
+                      const imgBlob = await imgRes.blob();
+                      const formData = new FormData();
+                      formData.append('file', imgBlob, 'kolam.png');
+                      // Send to remove.bg API route
+                      const res = await fetch('/api/removebackground', {
+                        method: 'POST',
+                        body: formData,
+                      });
+                      if (!res.ok) {
+                        alert('Background removal failed.');
+                        setLoading(false);
+                        return;
+                      }
+                      const arBlob = await res.blob();
+                      // Convert blob to base64 data URL
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        const base64Url = reader.result as string;
+                        sessionStorage.setItem('kolam_ar_image', base64Url);
+                        window.location.href = '/ar-designer?from=creation';
+                      };
+                      reader.readAsDataURL(arBlob);
+                    } catch (err) {
+                      alert('Failed to prepare AR visualization.');
+                      setLoading(false);
+                    }
+                  }} className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold mt-2">
+                    {loading ? "Preparing AR…" : "Visualize in AR"}
+                  </Button>
                 </div>
               ) : (
                 <div className="text-muted-foreground text-center">No Kolam generated yet.</div>
