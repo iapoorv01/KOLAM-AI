@@ -107,23 +107,30 @@ export default function ARKolamDesigner() {
         </div>
         {kolamImg && (
           <Button
-            onClick={async () => {
-              // Try WebXR AR first
-              let usedWebXR = false;
-              try {
-                if ((navigator as any).xr && await (navigator as any).xr.isSessionSupported('immersive-ar')) {
-                  await import('three');
-                  startKolamAR(kolamImg);
-                  usedWebXR = true;
+              onClick={async () => {
+                // Detect iOS (Safari/Chrome)
+                const isIOS = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent);
+                if (isIOS) {
+                  // Always use AR.js for iOS
+                  startKolamARjs(kolamImg);
+                  return;
                 }
-              } catch (err) {
-                // WebXR not available or failed
-              }
-              if (!usedWebXR) {
-                // Fallback to AR.js marker AR
-                startKolamARjs(kolamImg);
-              }
-            }}
+                // Try WebXR AR first for non-iOS
+                let usedWebXR = false;
+                try {
+                  if ((navigator as any).xr && await (navigator as any).xr.isSessionSupported('immersive-ar')) {
+                    await import('three');
+                    startKolamAR(kolamImg);
+                    usedWebXR = true;
+                  }
+                } catch (err) {
+                  // WebXR not available or failed
+                }
+                if (!usedWebXR) {
+                  // Fallback to AR.js marker AR
+                  startKolamARjs(kolamImg);
+                }
+              }}
             disabled={false}
           >
             Start AR Placement
