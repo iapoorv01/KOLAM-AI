@@ -22,12 +22,12 @@ export async function POST(req: NextRequest) {
     );
 
     // Fetch one API key with usage_count < 50
-    const { data: keyData, error: keyError } = await supabase
-      .from('removebg_keys')
-      .select('*')
-      .lt('usage_count', 50)
-      .order('usage_count', { ascending: true })
-      .limit(1);
+      const { data: keyData, error: keyError } = await supabase
+        .from('removebg_keys')
+        .select('*')
+        .lt('usage_count', 50)
+        .order('usage_count', { ascending: false })
+        .limit(1);
 
     if (keyError || !keyData || keyData.length === 0) {
       return NextResponse.json({ error: 'No available remove.bg API key.' }, { status: 500 });
