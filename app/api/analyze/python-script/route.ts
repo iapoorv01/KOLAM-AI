@@ -30,8 +30,8 @@ export async function POST(req: NextRequest) {
   try {
     await fs.writeFile(tempFilePath, buffer);
 
-    const command = `python kolam_analyzer_single.py "${tempFilePath}"`;
-
+    const scriptPath = join(process.cwd(), 'app', 'api', 'analyze', 'python-script', 'kolam_analyzer_single.py');
+    const command = `python "${scriptPath}" "${tempFilePath}"`;
     const { stdout, stderr } = await new Promise<{ stdout: string; stderr: string }>((resolve, reject) => {
       exec(command, { cwd: process.cwd() }, (error, stdout, stderr) => {
         if (error) {
@@ -44,8 +44,15 @@ export async function POST(req: NextRequest) {
       });
     });
 
+    // Log stdout and stderr for debugging
+    console.log('Python script stdout:', stdout);
     if (stderr) {
-      console.warn(`kolam_analyzer_single.py stderr: ${stderr}`);
+      console.warn('Python script stderr:', stderr);
+    }
+
+    // If stdout is empty, return error
+    if (!stdout || stdout.trim() === '') {
+      return NextResponse.json({ error: 'Python script did not return any output.' }, { status: 500 });
     }
 
     try {
@@ -54,9 +61,8 @@ export async function POST(req: NextRequest) {
     } catch (parseError) {
       console.error('Failed to parse JSON output from Python script:', parseError);
       console.error('Python script stdout:', stdout);
-      return NextResponse.json({ error: 'Failed to parse analysis result from Python script.' }, { status: 500 });
+      return NextResponse.json({ error: 'Failed to parse analysis result from Python script.', raw: stdout }, { status: 500 });
     }
-
   } catch (error) {
     console.error('Error during file processing or script execution:', error);
     return NextResponse.json({ error: 'Internal server error during analysis.' }, { status: 500 });
