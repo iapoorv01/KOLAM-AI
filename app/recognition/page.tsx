@@ -10,30 +10,53 @@ import { useAuth } from '@/components/site/auth-context'
 import Link from 'next/link'
 import Image from 'next/image';
 import { CommunityPostModal } from '@/components/community/CommunityPostModal';
-import ReactConfetti from 'react-confetti';
 
-type Analysis = {
-  grid?: { rows: number; cols: number; dotCount: number }
-  symmetry?: string[]
-  classification?: { label: string; confidence: number; source: 'cv' | 'dataset' | 'gemini'; details?: Record<string, any> }
-  overlays?: { type: 'dots' | 'grid' | 'contours'; points?: number[][] }[]
-}
+type KolamAnalysisResult = {
+  dot_grid: {
+    dots: [number, number][];
+    rows: number;
+    cols: number;
+    spacing_x: number;
+    spacing_y: number;
+    regularity_score: number;
+    num_dots?: number;
+  };
+  symmetry: {
+    horizontal: number;
+    vertical: number;
+    diagonal: number;
+    rotational_90: number;
+    rotational_180: number;
+    primary_symmetry: string;
+    is_symmetric: boolean;
+  };
+  kolam_type: string;
+  type_confidence: number;
+  dl_classification: string;
+  dl_confidence: number;
+  repetition_patterns: {
+    has_repetition: boolean;
+    repetition_score: number;
+    tile_size: [number, number] | null;
+  };
+  characteristics: {
+    edge_pixels: number;
+    edge_density: number;
+    num_contours: number;
+    complexity: string;
+  };
+};
 
 export default function RecognitionPage() {
+  // Track which analysis was chosen first
+  const [preferGemini, setPreferGemini] = React.useState(false)
+  const [reanalyzing, setReanalyzing] = React.useState(false)
+  const [geminiResult, setGeminiResult] = React.useState<any>(null)
+  const [datasetResult, setDatasetResult] = React.useState<any>(null)
   const [showPostModal, setShowPostModal] = React.useState(false);
   const [postImage, setPostImage] = React.useState<string | null>(null);
   const [postDetails, setPostDetails] = React.useState<string | null>(null);
   const [alreadyPosted, setAlreadyPosted] = React.useState(false);
-  const [karmaPoints, setKarmaPoints] = React.useState<number | null>(null);
-const [showKarmaModal, setShowKarmaModal] = React.useState(false);
-  // ...existing state declarations...
-
-  // Open CommunityPostModal after analysis is complete and user has not already posted
-
-  // ...existing state declarations...
-
-  // Show modal after any successful recognition (dataset or gemini)
-
 
   // Handler for posting to community
   async function handlePostToCommunity(description: string) {
@@ -71,22 +94,19 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
 
   const [file, setFile] = React.useState<File | null>(null)
   const [loading, setLoading] = React.useState(false)
-  const [datasetResult, setDatasetResult] = React.useState<Analysis | null>(null)
-  const [geminiResult, setGeminiResult] = React.useState<any | null>(null)
+  const [analysisResult, setAnalysisResult] = React.useState<KolamAnalysisResult | null>(null)
   const [error, setError] = React.useState<string | null>(null)
   const [preview, setPreview] = React.useState<string | null>(null)
   const [overlayUrl, setOverlayUrl] = React.useState<string | null>(null)
-  const [preferGemini, setPreferGemini] = React.useState<boolean>(true)
+  const [overlayDotCount, setOverlayDotCount] = React.useState<number | null>(null)
   const [progress, setProgress] = React.useState<number>(0)
   const [consentGiven, setConsentGiven] = React.useState<boolean>(false)
-  const [reanalyzing, setReanalyzing] = React.useState(false)
   const [tip, setTip] = React.useState<string | null>(null)
 
 
   const onFile = (f: File | null) => {
     setFile(f)
-  setDatasetResult(null)
-  setGeminiResult(null)
+    setAnalysisResult(null)
     setError(null)
     setPreview(f ? URL.createObjectURL(f) : null)
     setAlreadyPosted(false);
@@ -94,95 +114,50 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
 
 
   React.useEffect(() => {
-    if ((datasetResult || geminiResult) && preview && !alreadyPosted) {
+    if (analysisResult && preview && !alreadyPosted) {
       setPostImage(preview);
-      let name = '';
-      let explanation = '';
-      if (geminiResult) {
-        name = geminiResult.kolamTypeNormalized || geminiResult.kolamType || '';
-        explanation = geminiResult.explanation || '';
-      } else if (datasetResult) {
-        name = datasetResult.classification?.label || '';
-        explanation = '';
-      }
+      const name = analysisResult.kolam_type || analysisResult.dl_classification || '';
+      const explanation = `CV: ${analysisResult.kolam_type} (${(analysisResult.type_confidence * 100).toFixed(1)}%), DL: ${analysisResult.dl_classification} (${(analysisResult.dl_confidence * 100).toFixed(1)}%)`;
       setPostDetails(`${name}${explanation ? ': ' + explanation : ''}`);
       setShowPostModal(true);
     }
-  }, [datasetResult, geminiResult, preview, alreadyPosted]);
+  }, [analysisResult, preview, alreadyPosted]);
 
 
-  // Load preference from localStorage
-  React.useEffect(() => {
-    let mounted = true
-    ;(async () => {
-      try {
-        // Try to read from Supabase profile for authenticated user
-        const authUser = (await supabase.auth.getUser()).data.user
-        if (authUser && mounted) {
-          const { data, error } = await supabase.from('profiles').select('prefer_gemini').eq('id', authUser.id).single()
-          if (!error && data && typeof data.prefer_gemini === 'boolean') {
-            setPreferGemini(Boolean(data.prefer_gemini))
-            return
-          }
-        }
-      } catch {}
-      try {
-        const v = localStorage.getItem('preferGemini')
-        if (v !== null && mounted) setPreferGemini(v === 'true')
-      } catch {}
-    })()
-    return () => { mounted = false }
-  }, [])
-
-  // Persist preference
-  React.useEffect(() => {
-    try {
-      localStorage.setItem('preferGemini', preferGemini ? 'true' : 'false')
-    } catch {}
-  }, [preferGemini])
+  // Removed preference loading and persistence as preferGemini is no longer relevant
 
   const analyze = async () => {
     if (!file) return
     setLoading(true)
     setProgress(10)
-    // set an initial rotating tip for the loading overlay
     if (TIPS.length) {
       setTip(TIPS[Math.floor(Math.random() * TIPS.length)])
     }
-  setError(null)
-  setDatasetResult(null)
+    setError(null)
+    setAnalysisResult(null)
+    setGeminiResult(null)
+    setDatasetResult(null)
     try {
       const form = new FormData()
       form.append('image', file)
       const t1 = setTimeout(() => setProgress(35), 350)
       const t2 = setTimeout(() => setProgress(60), 900)
       const t3 = setTimeout(() => setProgress(85), 1600)
-      if (preferGemini) {
-        const res = await fetch('/api/analyze/gemini', { method: 'POST', body: form })
-        clearTimeout(t1)
-        clearTimeout(t2)
-        clearTimeout(t3)
-        if (!res.ok) throw new Error(await res.text())
-        const data = await res.json()
-        const display = data?.raw ?? data?.analysis ?? data
-        setGeminiResult(display)
-        setDatasetResult(null)
-        // eslint-disable-next-line no-console
-        console.log('Gemini analysis result:', display)
-  // store annotation (non-blocking)
-  storeAnnotation(file, display)
-      } else {
-        const res = await fetch('/api/analyze', { method: 'POST', body: form })
-        clearTimeout(t1)
-        clearTimeout(t2)
-        clearTimeout(t3)
-        if (!res.ok) throw new Error(await res.text())
-        const data = (await res.json()) as Analysis
-        setDatasetResult(data)
-        setGeminiResult(null)
-      }
+      // Default: dataset analysis first
+      setPreferGemini(false)
+      const res = await fetch('/api/analyze/python-script', { method: 'POST', body: form })
+      clearTimeout(t1)
+      clearTimeout(t2)
+      clearTimeout(t3)
+      if (!res.ok) throw new Error(await res.text())
+      const data = await res.json()
+      setAnalysisResult(data)
+      setDatasetResult(data)
+      // eslint-disable-next-line no-console
+      console.log('Python script analysis result:', data)
+      storeAnnotation(file, data)
     } catch (e: any) {
-      setError(e.message || 'Failed to analyze image')
+      setError(e.message || 'Failed to analyze image with Python script')
     } finally {
       setProgress(100)
       setLoading(false)
@@ -205,16 +180,16 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
     }
   }, [user, auth?.loading]);
 
-  // Log when Gemini result updates
+  // Log when analysis result updates
   React.useEffect(() => {
-    if (geminiResult) {
+    if (analysisResult) {
       // eslint-disable-next-line no-console
-      console.log('Gemini result updated:', geminiResult)
+      console.log('Analysis result updated:', analysisResult)
     }
-  }, [geminiResult]);
+  }, [analysisResult]);
 
-  // Persist user-upload + gemini result to Supabase for dataset building
-  const storeAnnotation = async (file: File, gemini: any) => {
+  // Persist user-upload + analysis result to Supabase for dataset building
+  const storeAnnotation = async (file: File, analysis: KolamAnalysisResult) => {
     try {
       if (!file) return
       // compute sha256 of file to deduplicate
@@ -248,7 +223,7 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
         user_id: userId,
         url: publicUrl,
         hash: hex,
-        gemini_result: gemini ?? {},
+        gemini_result: analysis ?? {},
         created_at: new Date().toISOString()
       }
       const { error: insErr } = await supabase.from('annotations').insert(payload)
@@ -303,6 +278,45 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
                 <Input type="file" accept="image/*" onChange={(e) => onFile(e.target.files?.[0] ?? null)} />
                 <div className="flex flex-col sm:flex-row gap-2 w-full">
                   <Button className="w-full sm:w-auto" onClick={analyze} disabled={!file || loading || !consentGiven}>{loading ? 'Analyzing…' : 'Analyze'}</Button>
+                {/* Button to choose Gemini analysis first */}
+                <Button
+                  className="w-full sm:w-auto"
+                  variant="outline"
+                  onClick={async () => {
+                    if (!file) return
+                    setLoading(true)
+                    setProgress(10)
+                    setError(null)
+                    setAnalysisResult(null)
+                    setGeminiResult(null)
+                    setDatasetResult(null)
+                    setPreferGemini(true)
+                    try {
+                      const form = new FormData()
+                      form.append('image', file)
+                      const t1 = setTimeout(() => setProgress(35), 350)
+                      const t2 = setTimeout(() => setProgress(60), 900)
+                      const t3 = setTimeout(() => setProgress(85), 1600)
+                      const res = await fetch('/api/analyze/gemini', { method: 'POST', body: form })
+                      clearTimeout(t1)
+                      clearTimeout(t2)
+                      clearTimeout(t3)
+                      if (!res.ok) throw new Error(await res.text())
+                      const data = await res.json()
+                      setAnalysisResult(data)
+                      setGeminiResult(data)
+                      // eslint-disable-next-line no-console
+                      console.log('Gemini analysis result:', data)
+                      storeAnnotation(file, data)
+                    } catch (e: any) {
+                      setError(e.message || 'Failed to analyze image with Gemini')
+                    } finally {
+                      setProgress(100)
+                      setLoading(false)
+                    }
+                  }}
+                  disabled={!file || loading || !consentGiven}
+                >Analyze with Gemini</Button>
                   {file && <Button className="w-full sm:w-auto" variant="ghost" onClick={() => onFile(null)}>Reset</Button>}
                   {file && (
                     <Button
@@ -310,11 +324,15 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
                       variant="outline"
                       onClick={async () => {
                         setOverlayUrl(null)
+                        setOverlayDotCount(null)
                         try {
                           const form = new FormData()
                           form.append('image', file)
                           const res = await fetch('/api/analyze/overlay', { method: 'POST', body: form })
                           if (!res.ok) throw new Error(await res.text())
+                          // Get dot count from custom header
+                          const dotCount = Number(res.headers.get('X-Dot-Count'))
+                          setOverlayDotCount(isNaN(dotCount) ? null : dotCount)
                           const blob = await res.blob()
                           const url = URL.createObjectURL(blob)
                           setOverlayUrl(url)
@@ -327,7 +345,7 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
                     </Button>
                   )}
                         {/* Try Its Variants button: always shown after analysis */}
-                        {file && (datasetResult || geminiResult) && (
+                        {file && analysisResult && (
                           <Button
                             variant="secondary"
                             className="ml-2 w-full sm:w-auto relative font-bold bg-teal-600 text-white border border-teal-600 shadow hover:bg-teal-700 hover:shadow-lg transition-transform duration-200"
@@ -425,29 +443,186 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
               <CardDescription>Interactive insights</CardDescription>
             </CardHeader>
             <CardContent>
-  {(!datasetResult && !geminiResult) && <p className="text-sm text-muted-foreground">No results yet.</p>}
-  {datasetResult && (
-    
+  {!analysisResult && <p className="text-sm text-muted-foreground">No results yet.</p>}
+  {analysisResult && (
     <div className="space-y-4">
-                {datasetResult.classification && (
+      {/* Show Gemini result card if Gemini analysis is preferred and result exists */}
+      {preferGemini && geminiResult && geminiResult.classification && (
+        <div className="rounded-xl border p-4 bg-gradient-to-br from-primary/10 to-accent/10">
+          <div className="flex items-center gap-4">
+            <div className="relative h-16 w-16">
+              {/* radial progress for Gemini confidence */}
+              <svg viewBox="0 0 36 36" className="h-16 w-16">
+                <path className="text-muted stroke-current" strokeWidth="3" fill="none" pathLength={100}
+                  d="M18 2a16 16 0 1 1 0 32a16 16 0 1 1 0-32" opacity="0.2" />
+                <path className="text-primary stroke-current" strokeWidth="3" strokeLinecap="round" fill="none" pathLength={100}
+                  strokeDasharray={`${Math.round((geminiResult.classification.confidence) * 100)}, 100`}
+                  d="M18 2a16 16 0 1 1 0 32a16 16 0 1 1 0-32" />
+              </svg>
+              <div className="absolute inset-0 grid place-items-center text-sm font-semibold">{Math.round(geminiResult.classification.confidence * 100)}%</div>
+            </div>
+            <div>
+              <div className="text-sm uppercase text-muted-foreground">Classification</div>
+              <div className="mt-1 text-xl font-semibold tracking-tight">
+                {geminiResult.classification.label}
+                <span className="ml-3 text-[10px] uppercase tracking-wider rounded-full bg-secondary/60 px-2 py-0.5">{geminiResult.classification.source}</span>
+              </div>
+            </div>
+          </div>
+          {/* confidence breakdown bar */}
+          <div className="mt-3 h-2 w-full rounded-full bg-muted overflow-hidden">
+            <div
+              className="h-full bg-primary"
+              style={{ width: `${Math.round(geminiResult.classification.confidence * 100)}%` }}
+                title={`${Math.round(geminiResult.classification.confidence * 100)}% ${geminiResult.classification.label}`}
+            />
+          </div>
+          <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+            <span>{Math.round(geminiResult.classification.confidence * 100)}% {geminiResult.classification.label}</span>
+            <span>
+              Other: {Math.max(0, 100 - Math.round(geminiResult.classification.confidence * 100))}%
+            </span>
+          </div>
+          {geminiResult.classification.details && (
+            <div className="mt-2 text-xs text-muted-foreground space-y-1">
+              {Object.entries(geminiResult.classification.details).map(([k, v]) => (
+                <div key={k}>
+                  <span className="font-medium">{k}:</span> {String(v)}
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="mt-3 flex gap-2">
+            <Button
+              className="mt-4"
+              variant="secondary"
+              disabled={reanalyzing}
+              onClick={async () => {
+                if (!file) return
+                setReanalyzing(true)
+                setProgress(10)
+                try {
+                  const form = new FormData()
+                  form.append('image', file)
+                  const t1 = setTimeout(() => setProgress(40), 300)
+                  const t2 = setTimeout(() => setProgress(70), 900)
+                  const res = await fetch('/api/analyze/python-script', { method: 'POST', body: form })
+                  clearTimeout(t1)
+                  clearTimeout(t2)
+                  if (!res.ok) throw new Error(await res.text())
+                  const data = await res.json()
+                  setDatasetResult(data)
+                  setAnalysisResult(data)
+                  storeAnnotation(file, data)
+                } catch (e: any) {
+                  setError(e?.message || 'Failed to re-analyze with Dataset')
+                } finally {
+                  setProgress(100)
+                  setReanalyzing(false)
+                }
+              }}
+            >{reanalyzing ? 'Re-analyzing…' : 'Reanalyze with Dataset'}</Button>
+          </div>
+        </div>
+      )}
+      {/* Show dataset result card if dataset analysis is preferred and result exists */}
+      {!preferGemini && datasetResult && datasetResult.classification && (
+        <div className="rounded-xl border p-4 bg-gradient-to-br from-primary/10 to-accent/10">
+          <div className="flex items-center gap-4">
+            <div className="relative h-16 w-16">
+              {/* radial progress for Dataset confidence */}
+              <svg viewBox="0 0 36 36" className="h-16 w-16">
+                <path className="text-muted stroke-current" strokeWidth="3" fill="none" pathLength={100}
+                  d="M18 2a16 16 0 1 1 0 32a16 16 0 1 1 0-32" opacity="0.2" />
+                <path className="text-primary stroke-current" strokeWidth="3" strokeLinecap="round" fill="none" pathLength={100}
+                  strokeDasharray={`${Math.round((datasetResult.classification.confidence) * 100)}, 100`}
+                  d="M18 2a16 16 0 1 1 0 32a16 16 0 1 1 0-32" />
+              </svg>
+              <div className="absolute inset-0 grid place-items-center text-sm font-semibold">{Math.round(datasetResult.classification.confidence * 100)}%</div>
+            </div>
+            <div>
+              <div className="text-sm uppercase text-muted-foreground">Classification</div>
+              <div className="mt-1 text-xl font-semibold tracking-tight">
+                {datasetResult.classification.label}
+                <span className="ml-3 text-[10px] uppercase tracking-wider rounded-full bg-secondary/60 px-2 py-0.5">{datasetResult.classification.source}</span>
+              </div>
+            </div>
+          </div>
+          {/* confidence breakdown bar */}
+          <div className="mt-3 h-2 w-full rounded-full bg-muted overflow-hidden">
+            <div
+              className="h-full bg-primary"
+              style={{ width: `${Math.round(datasetResult.classification.confidence * 100)}%` }}
+                title={`${Math.round(datasetResult.classification.confidence * 100)}% ${datasetResult.classification.label}`}
+            />
+          </div>
+          <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+            <span>{Math.round(datasetResult.classification.confidence * 100)}% {datasetResult.classification.label}</span>
+            <span>
+              Other: {Math.max(0, 100 - Math.round(datasetResult.classification.confidence * 100))}%
+            </span>
+          </div>
+          {datasetResult.classification.details && (
+            <div className="mt-2 text-xs text-muted-foreground space-y-1">
+              {Object.entries(datasetResult.classification.details).map(([k, v]) => (
+                <div key={k}>
+                  <span className="font-medium">{k}:</span> {String(v)}
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="mt-3 flex gap-2">
+            <Button
+              className="mt-4"
+              variant="secondary"
+              disabled={reanalyzing}
+              onClick={async () => {
+                if (!file) return
+                setReanalyzing(true)
+                setProgress(10)
+                try {
+                  const form = new FormData()
+                  form.append('image', file)
+                  const t1 = setTimeout(() => setProgress(40), 300)
+                  const t2 = setTimeout(() => setProgress(70), 900)
+                  const res = await fetch('/api/analyze/gemini', { method: 'POST', body: form })
+                  clearTimeout(t1)
+                  clearTimeout(t2)
+                  if (!res.ok) throw new Error(await res.text())
+                  const data = await res.json()
+                  setGeminiResult(data)
+                  setAnalysisResult(data)
+                  storeAnnotation(file, data)
+                } catch (e: any) {
+                  setError(e?.message || 'Failed to re-analyze with Gemini')
+                } finally {
+                  setProgress(100)
+                  setReanalyzing(false)
+                }
+              }}
+            >{reanalyzing ? 'Re-analyzing…' : 'Reanalyze with Gemini'}</Button>
+          </div>
+        </div>
+      )}
+                {analysisResult.dl_classification && (
                     <div className="rounded-xl border p-4 bg-gradient-to-br from-primary/10 to-accent/10">
                       <div className="flex items-center gap-4">
                         <div className="relative h-16 w-16">
-                          {/* radial progress */}
+                          {/* radial progress for Kolam Type confidence */}
                           <svg viewBox="0 0 36 36" className="h-16 w-16">
                             <path className="text-muted stroke-current" strokeWidth="3" fill="none" pathLength={100}
                               d="M18 2a16 16 0 1 1 0 32a16 16 0 1 1 0-32" opacity="0.2" />
                             <path className="text-primary stroke-current" strokeWidth="3" strokeLinecap="round" fill="none" pathLength={100}
-                              strokeDasharray={`${Math.round((datasetResult!.classification.confidence) * 100)}, 100`}
+                              strokeDasharray={`${Math.round((analysisResult!.type_confidence) * 100)}, 100`}
                               d="M18 2a16 16 0 1 1 0 32a16 16 0 1 1 0-32" />
                           </svg>
-                          <div className="absolute inset-0 grid place-items-center text-sm font-semibold">{Math.round(datasetResult!.classification.confidence * 100)}%</div>
+                          <div className="absolute inset-0 grid place-items-center text-sm font-semibold">{Math.round(analysisResult!.type_confidence * 100)}%</div>
                         </div>
                         <div>
-                          <div className="text-sm uppercase text-muted-foreground">Classification</div>
+                          <div className="text-sm uppercase text-muted-foreground">Kolam Type</div>
                           <div className="mt-1 text-xl font-semibold tracking-tight">
-                            {datasetResult.classification.label}
-                            <span className="ml-3 text-[10px] uppercase tracking-wider rounded-full bg-secondary/60 px-2 py-0.5">{datasetResult.classification.source}</span>
+                            {analysisResult.kolam_type}
+                            <span className="ml-3 text-[10px] uppercase tracking-wider rounded-full bg-secondary/60 px-2 py-0.5">CV Model</span>
                           </div>
                         </div>
                       </div>
@@ -455,243 +630,68 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
                       <div className="mt-3 h-2 w-full rounded-full bg-muted overflow-hidden">
                         <div
                           className="h-full bg-primary"
-                          style={{ width: `${Math.round(datasetResult.classification.confidence * 100)}%` }}
-                            title={`${Math.round(datasetResult.classification.confidence * 100)}% ${datasetResult.classification.label}`}
+                          style={{ width: `${Math.round(analysisResult.type_confidence * 100)}%` }}
+                            title={`${Math.round(analysisResult.type_confidence * 100)}% ${analysisResult.kolam_type}`}
                         />
                       </div>
                       <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
-                        <span>{Math.round(datasetResult.classification.confidence * 100)}% {datasetResult.classification.label}</span>
+                        <span>{Math.round(analysisResult.type_confidence * 100)}% {analysisResult.kolam_type}</span>
                         <span>
-                          Other: {Math.max(0, 100 - Math.round(datasetResult.classification.confidence * 100))}%
+                          DL: {Math.round(analysisResult.dl_confidence * 100)}% {analysisResult.dl_classification}
                         </span>
-                      </div>
-                      {datasetResult.classification.details && (
-                        <div className="mt-2 text-xs text-muted-foreground space-y-1">
-                          {Object.entries(datasetResult.classification.details).map(([k, v]) => (
-                            <div key={k}>
-                              <span className="font-medium">{k}:</span> {String(v)}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      <div className="mt-3 flex gap-2">
-                        {!preferGemini && datasetResult.classification.source !== 'gemini' && (
-                          <Button
-                            onClick={async () => {
-                              if (!file) return
-                              setReanalyzing(true)
-                              setProgress(10)
-                              try {
-                                const form = new FormData()
-                                form.append('image', file)
-                                const t1 = setTimeout(() => setProgress(40), 300)
-                                const t2 = setTimeout(() => setProgress(70), 900)
-                                const res = await fetch('/api/analyze/gemini', { method: 'POST', body: form })
-                                clearTimeout(t1)
-                                clearTimeout(t2)
-                                if (!res.ok) {
-                                  const text = await res.text()
-                                  throw new Error(text || 'Gemini reanalysis failed')
-                                }
-                                const data = await res.json()
-                                // Server may return { analysis, raw }; prefer raw for display
-                                const display = data?.raw ?? data?.analysis ?? data
-                                // Save Gemini-specific analysis separately so datasetResult remains unchanged
-                                setGeminiResult(display)
-                                // Log Gemini result for debugging/inspection
-                                // eslint-disable-next-line no-console
-                                console.log('Gemini analysis result:', display)
-                                // store for dataset building (non-blocking)
-                                storeAnnotation(file, display)
-                              } catch (e: any) {
-                                setError(e?.message || 'Failed to re-analyze with Gemini')
-                              } finally {
-                                setProgress(100)
-                                setReanalyzing(false)
-                              }
-                            }}
-                            disabled={reanalyzing}
-                          >
-                            {reanalyzing ? 'Re-analyzing  ' : 'Re-analyze with Gemini'}
-                          </Button>
-                        )}
                       </div>
                     </div>
                   )}
-                  {datasetResult.grid && (
+                  {analysisResult.dot_grid && (
                     <div className="rounded-xl border p-4 bg-card/50">
                       <div className="text-sm uppercase text-muted-foreground">Dot Grid</div>
                       <div className="mt-2 flex flex-wrap gap-2 text-sm">
-                        <span className="rounded-full bg-secondary/60 px-2 py-0.5">rows: {datasetResult.grid.rows}</span>
-                        <span className="rounded-full bg-secondary/60 px-2 py-0.5">cols: {datasetResult.grid.cols}</span>
-                        <span className="rounded-full bg-secondary/60 px-2 py-0.5">dots: {datasetResult.grid.dotCount}</span>
+                        <span className="rounded-full bg-secondary/60 px-2 py-0.5">rows: {analysisResult.dot_grid.rows}</span>
+                        <span className="rounded-full bg-secondary/60 px-2 py-0.5">cols: {analysisResult.dot_grid.cols}</span>
+                        <span className="rounded-full bg-secondary/60 px-2 py-0.5">
+                          dots: {typeof analysisResult.dot_grid.num_dots === 'number' ? analysisResult.dot_grid.num_dots : '—'}
+                        </span>
+                        <span className="rounded-full bg-secondary/60 px-2 py-0.5">regularity: {(analysisResult.dot_grid.regularity_score * 100).toFixed(1)}%</span>
                       </div>
                     </div>
                   )}
-                  {datasetResult.symmetry && datasetResult.symmetry.length > 0 && (
+                  {analysisResult.symmetry && (
                     <div className="rounded-xl border p-4 bg-card/50">
                       <div className="text-sm uppercase text-muted-foreground">Symmetry</div>
                       <div className="mt-2 flex flex-wrap gap-2">
-                        {datasetResult.symmetry.map((s, i) => (
-                          <span key={i} className="rounded-full bg-accent/60 px-2 py-0.5 text-xs">{s}</span>
-                        ))}
+                        <span className="rounded-full bg-accent/60 px-2 py-0.5 text-xs">Primary: {analysisResult.symmetry.primary_symmetry}</span>
+                        <span className="rounded-full bg-accent/60 px-2 py-0.5 text-xs">H: {(analysisResult.symmetry.horizontal * 100).toFixed(1)}%</span>
+                        <span className="rounded-full bg-accent/60 px-2 py-0.5 text-xs">V: {(analysisResult.symmetry.vertical * 100).toFixed(1)}%</span>
+                        <span className="rounded-full bg-accent/60 px-2 py-0.5 text-xs">Rot90: {(analysisResult.symmetry.rotational_90 * 100).toFixed(1)}%</span>
+                        <span className="rounded-full bg-accent/60 px-2 py-0.5 text-xs">Rot180: {(analysisResult.symmetry.rotational_180 * 100).toFixed(1)}%</span>
                       </div>
                     </div>
                   )}
-                  
+                  {analysisResult.repetition_patterns && (
+                    <div className="rounded-xl border p-4 bg-card/50">
+                      <div className="text-sm uppercase text-muted-foreground">Repetition</div>
+                      <div className="mt-2 flex flex-wrap gap-2 text-sm">
+                        <span className="rounded-full bg-secondary/60 px-2 py-0.5">Has Repetition: {analysisResult.repetition_patterns.has_repetition ? 'Yes' : 'No'}</span>
+                        {analysisResult.repetition_patterns.tile_size && (
+                          <span className="rounded-full bg-secondary/60 px-2 py-0.5">Tile Size: {analysisResult.repetition_patterns.tile_size[0]}x{analysisResult.repetition_patterns.tile_size[1]}</span>
+                        )}
+                        <span className="rounded-full bg-secondary/60 px-2 py-0.5">Score: {(analysisResult.repetition_patterns.repetition_score * 100).toFixed(1)}%</span>
+                      </div>
+                    </div>
+                  )}
+                  {analysisResult.characteristics && (
+                    <div className="rounded-xl border p-4 bg-card/50">
+                      <div className="text-sm uppercase text-muted-foreground">Characteristics</div>
+                      <div className="mt-2 flex flex-wrap gap-2 text-sm">
+                        <span className="rounded-full bg-secondary/60 px-2 py-0.5">Complexity: {analysisResult.characteristics.complexity}</span>
+                        <span className="rounded-full bg-secondary/60 px-2 py-0.5">Edge Density: {(analysisResult.characteristics.edge_density * 100).toFixed(1)}%</span>
+                        <span className="rounded-full bg-secondary/60 px-2 py-0.5">Num Contours: {analysisResult.characteristics.num_contours}</span>
+                        <span className="rounded-full bg-secondary/60 px-2 py-0.5">Type: Complex (109-dot)</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
-        {geminiResult && (
-          <div className="rounded-2xl border p-4 bg-gradient-to-br from-white/3 to-primary/6 shadow-lg">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div>
-                <div className="text-xs uppercase text-muted-foreground mb-1">Gemini Analysis · Model: Gemini</div>
-                {(() => {
-                  // Only promote reportedName when it is meaningful — not a generic "other" placeholder.
-                  const reported = String(geminiResult.reportedName ?? '').trim()
-                  const canonical = String(geminiResult.kolamTypeNormalized ?? geminiResult.kolamType ?? '').trim()
-                  const reportedIsOther = /^\s*other\b/i.test(reported)
-                  const canonicalIsOther = /^\s*other\b/i.test(canonical)
-
-                  if (reported && !reportedIsOther) {
-                    return (
-                      <div className="flex items-center gap-3">
-                        <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight">{reported}</h2>
-                        {!canonicalIsOther && canonical && (
-                          <span className="text-sm rounded-full bg-secondary/20 px-2 py-1 text-muted-foreground">{canonical}</span>
-                        )}
-                      </div>
-                    )
-                  }
-
-                  if (canonical && !canonicalIsOther) {
-                    return <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight">{canonical}</h2>
-                  }
-
-                  return <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight">Unknown</h2>
-                })()}
-              </div>
-              <div className="hidden sm:flex items-center gap-4">
-                <div className="text-sm text-muted-foreground">Symmetry confidence</div>
-                <div className="text-lg font-bold text-primary">{typeof geminiResult.symmetryConfidence === 'number' ? `${(Number(geminiResult.symmetryConfidence) * 100).toFixed(0)}%` : 'N/A'}</div>
-              </div>
-            </div>
-
-            <div className="mt-4 grid gap-4 sm:grid-cols-3">
-              <div className="sm:col-span-1 flex flex-col items-center gap-3">
-                <div className="rounded-lg overflow-hidden w-40 h-40 flex items-center justify-center bg-muted">
-                  {preview ? (
-                    // Use client preview if available
-                    // eslint-disable-next-line @next/next/no-img-element
-<Image src={preview || '/default-kolam.png'} alt="Kolam preview" width={600} height={400} className="w-full object-contain rounded" />
-                  ) : (
-                    <div className="text-xs text-muted-foreground px-3">No preview</div>
-                  )}
-                </div>
-                {/* mobile-only symmetry moved below Principle for better layout */}
-                {(() => {
-                  const reported = String(geminiResult.reportedName ?? '').trim()
-                  const canonical = String(geminiResult.kolamTypeNormalized ?? geminiResult.kolamType ?? '').trim()
-                  const reportedIsOther = /^\s*other\b/i.test(reported)
-                  const showReported = reported && !reportedIsOther
-                  const label = showReported ? 'Reported' : 'Type'
-                  const value = showReported ? reported : (canonical || 'Unknown')
-                  return (
-                    <div className="text-center">
-                      <div className="text-xs text-muted-foreground">{label}</div>
-                      <div className="text-sm font-medium">{value}</div>
-                    </div>
-                  )
-                })()}
-              </div>
-
-                <div className="sm:col-span-2 grid gap-3">
-                <div>
-                  <div className="text-sm text-muted-foreground">Principle</div>
-                  <div className="text-base font-semibold">{geminiResult.principle ?? '—'}</div>
-                </div>
-                {/* Mobile-only symmetry confidence: appears below Principle on small screens */}
-                <div className="sm:hidden mt-2 text-sm">
-                  <div className="text-xs text-muted-foreground">Symmetry confidence</div>
-                  <div className="text-sm font-bold text-primary">{typeof geminiResult.symmetryConfidence === 'number' ? `${(Number(geminiResult.symmetryConfidence) * 100).toFixed(0)}%` : 'N/A'}</div>
-                </div>
-
-                <div>
-                  <div className="text-sm text-muted-foreground">Symmetry</div>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {(geminiResult.symmetry || []).length === 0 ? (
-                      <span className="text-xs text-muted-foreground">None detected</span>
-                    ) : (
-                      (geminiResult.symmetry || []).map((s: string, i: number) => (
-                        <span key={i} className="inline-flex items-center text-xs font-medium bg-accent/10 text-accent rounded-full px-2 py-1">{s}</span>
-                      ))
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="text-sm text-muted-foreground">Spiritual / Context</div>
-                  <div className="mt-1 text-sm">{geminiResult.spiritual ?? 'Not available'}</div>
-                  {geminiResult.spiritualAssessment && (
-                    <div className="mt-2 text-xs text-muted-foreground grid grid-cols-2 gap-2">
-                      <div className="p-2 rounded bg-muted/10"><div className="font-medium">Home</div><div>{geminiResult.spiritualAssessment.home}</div></div>
-                      <div className="p-2 rounded bg-muted/10"><div className="font-medium">Shop</div><div>{geminiResult.spiritualAssessment.shop}</div></div>
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <div className="text-sm text-muted-foreground">Explanation</div>
-                  <div className="mt-1 text-sm leading-relaxed text-foreground/90">{geminiResult.explanation ?? '—'}</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div className="text-xs text-muted-foreground">Comparison: dataset vs Gemini</div>
-              <div className="flex items-center gap-2">
-                <div className="px-3 py-1 rounded bg-muted/10 text-xs">
-                  <div className="font-medium">Dataset</div>
-                  <div className="text-muted-foreground">{datasetResult?.classification?.label ?? '—'}</div>
-                </div>
-                <div className="px-3 py-1 rounded bg-muted/10 text-xs">
-                  <div className="font-medium">Gemini</div>
-                  <div className="text-muted-foreground">{geminiResult.kolamTypeNormalized ?? geminiResult.kolamType ?? '—'}</div>
-                </div>
-                <Button
-                  onClick={async () => {
-                    if (!file) return
-                    setReanalyzing(true)
-                    setProgress(10)
-                    try {
-                      const form = new FormData()
-                      form.append('image', file)
-                      const t1 = setTimeout(() => setProgress(40), 300)
-                      const t2 = setTimeout(() => setProgress(70), 900)
-                      const res = await fetch('/api/analyze', { method: 'POST', body: form })
-                      clearTimeout(t1)
-                      clearTimeout(t2)
-                      if (!res.ok) {
-                        const text = await res.text()
-                        throw new Error(text || 'Dataset reanalysis failed')
-                      }
-                      const data = (await res.json()) as Analysis
-                      setDatasetResult(data)
-                    } catch (e: any) {
-                      setError(e?.message || 'Failed to re-analyze with dataset')
-                    } finally {
-                      setProgress(100)
-                      setReanalyzing(false)
-                    }
-                  }}
-                  disabled={reanalyzing}
-                >
-                  {reanalyzing ? 'Re-analyzing…' : 'Re-analyze with Dataset'}
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
             </CardContent>
           </Card>
         </div>
@@ -730,47 +730,18 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to post');
 
-      setTimeout(() => {
-        setKarmaPoints(data.karma ?? null);
-        setShowKarmaModal(true);
-      }, 500);
+      // Removed karma points and modal logic
+      // setTimeout(() => {
+      //   setKarmaPoints(data.karma ?? null);
+      //   setShowKarmaModal(true);
+      // }, 500);
     } catch (e) {
       const errMsg = (e instanceof Error) ? e.message : 'Failed to post';
       alert(errMsg);
     }
     setShowPostModal(false);
   }}
-/>{showKarmaModal && (
-  <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
-    <div className="bg-white rounded-xl shadow-xl p-8 w-full max-w-md flex flex-col items-center border relative">
-      <ReactConfetti width={400} height={200} numberOfPieces={100} recycle={false} />
-      <div className="animate-spin-slow mb-4">
-        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="32" cy="32" r="30" fill="#FFD700" stroke="#F7B500" strokeWidth="4" />
-          <text x="32" y="38" textAnchor="middle" fontSize="24" fontWeight="bold" fill="#fff">10</text>
-        </svg>
-      </div>
-      <h2 className="text-xl font-bold mb-2 text-yellow-700">You earned 10 Kolam Karma!</h2>
-      <p className="mb-2 text-gray-700">Total Kolam Karma: <span className="font-bold text-yellow-700">{karmaPoints ?? '...'}</span></p>
-      <Button onClick={() => setShowKarmaModal(false)} className="mt-2 bg-yellow-500 text-white">Awesome!</Button>
-    </div>
-  </div>
-)}{showKarmaModal && (
-  <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
-    <div className="bg-white rounded-xl shadow-xl p-8 w-full max-w-md flex flex-col items-center border relative">
-      <ReactConfetti width={400} height={200} numberOfPieces={100} recycle={false} />
-      <div className="animate-spin-slow mb-4">
-        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="32" cy="32" r="30" fill="#FFD700" stroke="#F7B500" strokeWidth="4" />
-          <text x="32" y="38" textAnchor="middle" fontSize="24" fontWeight="bold" fill="#fff">{karmaPoints ?? '...'}</text>
-        </svg>
-      </div>
-      <h2 className="text-xl font-bold mb-2 text-yellow-700">You earned {karmaPoints ?? 0} Kolam Karma!</h2>
-      <p className="mb-2 text-gray-700">Total Kolam Karma: <span className="font-bold text-yellow-700">{karmaPoints ?? '...'}</span></p>
-      <Button onClick={() => setShowKarmaModal(false)} className="mt-2 bg-yellow-500 text-white">Awesome!</Button>
-    </div>
-  </div>
-)}
+/>
       </main>
       <Footer />
     </div>
