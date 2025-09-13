@@ -50,10 +50,6 @@ export function LeaderboardShowcase() {
         <div className="w-full h-full flex flex-col items-center justify-center">
           <span className="text-muted-foreground font-medium">Loading top Kolam creator…</span>
         </div>
-        <div className="line topl"></div>
-        <div className="line leftl"></div>
-        <div className="line bottoml"></div>
-        <div className="line rightl"></div>
       </div>
     </div>
   );
@@ -65,10 +61,6 @@ export function LeaderboardShowcase() {
         <div className="w-full h-full flex flex-col items-center justify-center">
           <span className="text-muted-foreground font-medium">Beautiful Kolam patterns, reimagined with AI</span>
         </div>
-        <div className="line topl"></div>
-        <div className="line leftl"></div>
-        <div className="line bottoml"></div>
-        <div className="line rightl"></div>
       </div>
     </div>
   );

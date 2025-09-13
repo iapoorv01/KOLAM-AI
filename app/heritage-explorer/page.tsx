@@ -3,6 +3,7 @@ import { Navbar } from '@/components/site/navbar';
 import { Footer } from '@/components/site/footer';
 import { Button } from '@/components/ui/button';
 import { BookOpen, MapPin, Sparkle, Info, HelpCircle } from 'lucide-react';
+import React from 'react';
 import Image from 'next/image';
 import { useState } from 'react';
 
@@ -66,6 +67,98 @@ function IndiaMap({ onRegionClick }: { onRegionClick: (region: string) => void }
 }
 
 export default function HeritageExplorerPage() {
+  // Rotating Globe and Stars React Component
+  const GlobeBanner = () => (
+  <div className="section-banner mx-auto mb-6">
+      <div id="star-1">
+        <div className="curved-corner-star">
+          <div id="curved-corner-bottomright"></div>
+          <div id="curved-corner-bottomleft"></div>
+        </div>
+        <div className="curved-corner-star">
+          <div id="curved-corner-topright"></div>
+          <div id="curved-corner-topleft"></div>
+        </div>
+      </div>
+      <div id="star-2">
+        <div className="curved-corner-star">
+          <div id="curved-corner-bottomright"></div>
+          <div id="curved-corner-bottomleft"></div>
+        </div>
+        <div className="curved-corner-star">
+          <div id="curved-corner-topright"></div>
+          <div id="curved-corner-topleft"></div>
+        </div>
+      </div>
+      <div id="star-3">
+        <div className="curved-corner-star">
+          <div id="curved-corner-bottomright"></div>
+          <div id="curved-corner-bottomleft"></div>
+        </div>
+        <div className="curved-corner-star">
+          <div id="curved-corner-topright"></div>
+          <div id="curved-corner-topleft"></div>
+        </div>
+      </div>
+      <div id="star-4">
+        <div className="curved-corner-star">
+          <div id="curved-corner-bottomright"></div>
+          <div id="curved-corner-bottomleft"></div>
+        </div>
+        <div className="curved-corner-star">
+          <div id="curved-corner-topright"></div>
+          <div id="curved-corner-topleft"></div>
+        </div>
+      </div>
+      <div id="star-5">
+        <div className="curved-corner-star">
+          <div id="curved-corner-bottomright"></div>
+          <div id="curved-corner-bottomleft"></div>
+        </div>
+        <div className="curved-corner-star">
+          <div id="curved-corner-topright"></div>
+          <div id="curved-corner-topleft"></div>
+        </div>
+      </div>
+      <div id="star-6">
+        <div className="curved-corner-star">
+          <div id="curved-corner-bottomright"></div>
+          <div id="curved-corner-bottomleft"></div>
+        </div>
+        <div className="curved-corner-star">
+          <div id="curved-corner-topright"></div>
+          <div id="curved-corner-topleft"></div>
+        </div>
+      </div>
+      <div id="star-7">
+        <div className="curved-corner-star">
+          <div id="curved-corner-bottomright"></div>
+          <div id="curved-corner-bottomleft"></div>
+        </div>
+        <div className="curved-corner-star">
+          <div id="curved-corner-topright"></div>
+          <div id="curved-corner-topleft"></div>
+        </div>
+      </div>
+    </div>
+  );
+  // Rotating Earth JSX (converted from HTML/CSS)
+  const RotatingEarth = () => (
+    <div className="section-banner mx-auto mb-6" style={{height:250, width:250}}>
+      {[...Array(7)].map((_, i) => (
+        <div key={i} id={`star-${i+1}`} className="absolute">
+          <div className="curved-corner-star">
+            <div id="curved-corner-bottomright"></div>
+            <div id="curved-corner-bottomleft"></div>
+          </div>
+          <div className="curved-corner-star">
+            <div id="curved-corner-topright"></div>
+            <div id="curved-corner-topleft"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
   const [factIdx, setFactIdx] = useState(0);
   const [showFact, setShowFact] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState('');
@@ -93,15 +186,54 @@ export default function HeritageExplorerPage() {
   };
 
   return (
-    <div>
+  <div>
       <Navbar />
       <main className="container py-8 max-w-3xl mx-auto">
-        <section className="mb-10 text-center">
-          <span className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/15 border shadow-lg mb-4">
-            <BookOpen className="h-8 w-8 text-primary" />
+        {/* Hero Section */}
+        <section className="mb-10 text-center flex flex-col items-center justify-center">
+          <span className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/20 border shadow-lg mb-4">
+            <BookOpen className="h-10 w-10 text-primary" />
           </span>
-          <h1 className="text-4xl font-extrabold mb-2">Kolam Heritage Explorer</h1>
-          <p className="text-lg text-muted-foreground">Discover the history, culture, and evolution of Kolams across India.</p>
+          <h1 className="text-5xl font-extrabold mb-3 text-gradient bg-gradient-to-r from-pink-500 via-yellow-500 to-indigo-500 bg-clip-text text-transparent">Kolam Heritage Explorer</h1>
+          <p className="text-lg text-muted-foreground max-w-xl mx-auto">Explore the vibrant history, cultural depth, and artistic evolution of Kolams—South India&apos;s living tradition of art and welcome.</p>
+        </section>
+
+        {/* History & Origin Section */}
+        <section className="mb-8 p-6 rounded-xl bg-card/80 shadow">
+          <h2 className="text-2xl font-bold mb-2 flex items-center gap-2"><Sparkle className="w-6 h-6 text-yellow-500" /> History & Origin</h2>
+          <p className="mb-2 text-base">Kolams are intricate patterns drawn at the thresholds of homes, especially in Tamil Nadu and South India. Their roots trace back centuries, symbolizing auspiciousness and daily renewal. Traditionally made with rice flour, Kolams are part of morning rituals, festivals like Pongal, and special occasions—welcoming prosperity and guests.</p>
+          <div className="flex flex-wrap gap-4 justify-center mt-4">
+            <div className="w-40 h-40 bg-gray-100 rounded-lg flex flex-col items-center justify-center border">
+              <span className="font-bold text-lg">Traditional Kolam</span>
+              <span className="text-xs text-muted-foreground">Rice flour, doorstep</span>
+              <span className="mt-2 text-xs text-pink-600">Photo Placeholder</span>
+            </div>
+            <div className="w-40 h-40 bg-gray-100 rounded-lg flex flex-col items-center justify-center border">
+              <span className="font-bold text-lg">Modern Kolam</span>
+              <span className="text-xs text-muted-foreground">Digital, creative</span>
+              <span className="mt-2 text-xs text-indigo-600">Photo Placeholder</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Cultural Significance Section */}
+        <section className="mb-8 p-6 rounded-xl bg-card/80 shadow">
+          <h2 className="text-2xl font-bold mb-2 flex items-center gap-2"><Info className="w-6 h-6 text-pink-500" /> Cultural Significance</h2>
+          <div className="flex justify-center mb-4">
+            <GlobeBanner />
+          </div>
+          <ul className="list-disc pl-6 text-base mb-2">
+            <li><b>Dots & Symmetry:</b> Dots represent cosmic energy and order; symmetry reflects balance and harmony.</li>
+            <li><b>Spiritual Meaning:</b> Kolams are believed to bring prosperity, protection, and a connection with nature.</li>
+            <li><b>Eco-Friendly:</b> Made with rice flour, Kolams feed birds and ants, supporting local ecology.</li>
+            <li><b>Community Bond:</b> Drawing Kolams fosters creativity, patience, and social connection.</li>
+          </ul>
+          <div className="mt-4 flex flex-col items-center">
+            <div className="w-64 h-24 bg-gradient-to-r from-yellow-200 via-pink-200 to-indigo-200 rounded-lg flex items-center justify-center border mb-2 animate-pulse">
+              <span className="font-semibold text-lg text-indigo-700">Animated Dots → Pattern Placeholder</span>
+            </div>
+            <span className="text-xs text-muted-foreground">(Visual: dots transforming into Kolam pattern)</span>
+          </div>
         </section>
 
         {/* Timeline Visual */}
@@ -111,18 +243,31 @@ export default function HeritageExplorerPage() {
           <div className="text-center text-sm text-muted-foreground">From dots to digital: Kolam’s journey through time.</div>
         </section>
 
-        {/* Interactive Map */}
-        <section className="mb-8">
-          <h2 className="text-2xl font-bold mb-2">Regional Kolam Styles</h2>
-          <IndiaMap onRegionClick={handleRegionClick} />
-          {selectedRegion && (
-            <div className="mt-2 text-center text-base font-semibold text-primary">{selectedRegion} style selected!</div>
-          )}
+        {/* Regional Variations Section */}
+        <section className="mb-8 p-6 rounded-xl bg-card/80 shadow">
+          <h2 className="text-2xl font-bold mb-2 flex items-center gap-2"><MapPin className="w-6 h-6 text-green-500" /> Regional Kolam Styles</h2>
+          <div className="mb-4">
+            <IndiaMap onRegionClick={handleRegionClick} />
+            {selectedRegion && (
+              <div className="mt-2 text-center text-base font-semibold text-primary">{selectedRegion} style selected!</div>
+            )}
+          </div>
+          <ul className="list-disc pl-6 text-base">
+            <li><b>Tamil Nadu:</b> Pulli Kolam (dot grids)</li>
+            <li><b>Andhra/Telangana:</b> Muggu</li>
+            <li><b>Karnataka:</b> Rangavalli</li>
+            <li><b>North India:</b> Rangoli (colorful version)</li>
+          </ul>
+          <div className="mt-4 w-full flex justify-center">
+            <div className="w-64 h-32 bg-gray-200 rounded-lg flex items-center justify-center border">
+              <span className="font-semibold text-base text-gray-600">Map of India Placeholder</span>
+            </div>
+          </div>
         </section>
 
-        {/* Animated Fact Popup */}
-        <section className="mb-8">
-          <h2 className="text-2xl font-bold mb-2">Did You Know?</h2>
+        {/* Did You Know Section */}
+        <section className="mb-8 p-6 rounded-xl bg-card/80 shadow">
+          <h2 className="text-2xl font-bold mb-2 flex items-center gap-2"><HelpCircle className="w-6 h-6 text-indigo-500" /> Did You Know?</h2>
           <div className="flex flex-col items-center">
             <Button variant="outline" onClick={handleNextFact}>Show Fact</Button>
             {showFact && (
@@ -133,9 +278,9 @@ export default function HeritageExplorerPage() {
           </div>
         </section>
 
-        {/* Gamified Quiz */}
-        <section className="mb-8">
-          <h2 className="text-2xl font-bold mb-2">Kolam Quiz</h2>
+        {/* Gamified Quiz Section */}
+        <section className="mb-8 p-6 rounded-xl bg-card/80 shadow">
+          <h2 className="text-2xl font-bold mb-2 flex items-center gap-2"><Sparkle className="w-6 h-6 text-yellow-500" /> Kolam Quiz</h2>
           {!showQuizResult ? (
             <div className="p-4 rounded-lg border bg-card">
               <div className="font-semibold mb-2">{quizQuestions[quizIdx].question}</div>
@@ -153,6 +298,7 @@ export default function HeritageExplorerPage() {
               <Button className="mt-4" onClick={() => {setQuizIdx(0); setScore(0); setShowQuizResult(false);}}>Try Again</Button>
             </div>
           )}
+          <div className="mt-4 text-center text-sm text-muted-foreground">(Future: Earn Kolam Credits for correct answers!)</div>
         </section>
 
         <div className="text-center mt-10">
