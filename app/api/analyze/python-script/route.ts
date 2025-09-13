@@ -22,12 +22,10 @@ export async function POST(req: NextRequest) {
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
 
-  const tempFileName = `upload-${uuidv4()}-${file.name}`;
-  const tempFilePath = join(process.cwd(), 'tmp', tempFileName);
 
-  // Ensure the 'tmp' directory exists
-  const tempDir = join(process.cwd(), 'tmp');
-  await fs.mkdir(tempDir, { recursive: true });
+  const tempFileName = `upload-${uuidv4()}-${file.name}`;
+  const tempDir = '/tmp';
+  const tempFilePath = join(tempDir, tempFileName);
 
   try {
     await fs.writeFile(tempFilePath, buffer);
