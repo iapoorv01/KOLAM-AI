@@ -1,11 +1,5 @@
 {
   "builds": [
     { "src": "app/api/**/*.py", "use": "@vercel/python" }
-  ],
-  "functions": {
-    "app/api/analyze/python-script/route.py": {
-      "memory": 1024,
-      "maxDuration": 60
-    }
-  }
+  ]
 }
