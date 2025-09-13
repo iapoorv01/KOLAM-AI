@@ -13,10 +13,11 @@ export function LeaderboardShowcase() {
   const [topUser, setTopUser] = useState<any>(null);
   useEffect(() => {
     async function fetchTopPosts() {
-      // Get top user from leaderboard
+      // Get top user from profiles
       const { data: leaderboard } = await supabase
-        .from('kolam_leaderboard')
-        .select('*')
+        .from('profiles')
+        .select('id, username, profile_image_url, kolam_karma')
+        .not('kolam_karma', 'is', null)
         .order('kolam_karma', { ascending: false })
         .limit(1);
       if (!leaderboard || leaderboard.length === 0) return setLoading(false);

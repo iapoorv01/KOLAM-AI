@@ -19,8 +19,10 @@ export default function LeaderboardPage() {
 
   useEffect(() => {
     supabase
-      .from('kolam_leaderboard')
-      .select('*')
+      .from('profiles')
+      .select('id, username, profile_image_url, kolam_karma')
+      .not('kolam_karma', 'is', null)
+      .order('kolam_karma', { ascending: false })
       .then(({ data }) => setLeaderboard((data as LeaderboardUser[]) || []));
   }, []);
 

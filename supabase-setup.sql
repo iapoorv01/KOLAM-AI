@@ -2,12 +2,13 @@
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN
-  INSERT INTO public.profiles (id, username, description, profile_image_url)
+  INSERT INTO public.profiles (id, username, description, profile_image_url, kolam_karma)
   VALUES (
     new.id,
     COALESCE(new.raw_user_meta_data->>'full_name', ''),
     '',
-    COALESCE(new.raw_user_meta_data->>'avatar_url', '')
+    COALESCE(new.raw_user_meta_data->>'avatar_url', ''),
+    0
   )
   ON CONFLICT (id) DO UPDATE SET
     -- Only update username if it's empty and we have a new value
