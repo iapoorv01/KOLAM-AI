@@ -279,9 +279,7 @@ export default function KolamCreationPage() {
     <div>
       <Navbar />
       <main className="container py-10">
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-3 text-gradient bg-gradient-to-r from-pink-500 via-yellow-500 to-indigo-500 bg-clip-text text-transparent px-4 tracking-tight">
-          Kolam Generator
-        </h1>
+        <h1 className="text-3xl font-bold mb-2">Kolam Generator</h1>
         <p className="text-muted-foreground mb-6">Create a Kolam pattern by choosing options or uploading an image. Responsive for laptop and mobile.</p>
         <div className="grid gap-8 lg:grid-cols-2">
           <Card className="bg-teal-50 border-teal-200 shadow-lg">

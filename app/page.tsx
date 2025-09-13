@@ -16,7 +16,7 @@ export default function HomePage() {
       <main className="container py-8 flex flex-col items-center justify-center min-h-screen">
         <section className="w-full flex flex-col lg:grid lg:grid-cols-2 gap-6 items-center justify-center">
           <div className="w-full flex flex-col items-center justify-center text-center px-2">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-3 text-gradient bg-gradient-to-r from-pink-500 via-yellow-500 to-indigo-500 bg-clip-text text-transparent px-4 tracking-tight text-center">
+            <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight leading-tight">
               Kolam Ai: Digitizing heritage with Ai & Ar
             </h1>
             <p className="mt-4 text-lg text-muted-foreground">
