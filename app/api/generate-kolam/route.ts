@@ -29,7 +29,10 @@ export async function POST(req: Request) {
   const prompt = `Kolam types: ${kolamTypeListText}\nGenerate a ${kolamType} Kolam with ${symmetryType} symmetry and ${pathStyle} line paths. Use a ${dotGridType} with ${gridSize} grid size. Context: ${culturalContext}. IMPORTANT: The generated Kolam should be on a plain white or black background (no shadows, no textures, no gradients) so the background can be easily removed for AR functionality.`;
 
     // Gemini API call
-    const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyAQhLgkTPYP83KQ5v21P2uihzb2OBdLDBg';
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error('GEMINI_API_KEY environment variable is not set');
+    }
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-image-preview' });
     const result = await model.generateContent(prompt);

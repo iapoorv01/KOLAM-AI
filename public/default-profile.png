@@ -1,0 +1,6 @@
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <rect width="128" height="128" fill="#e5e7eb"/>
+  <circle cx="64" cy="48" r="24" fill="#a3a3a3"/>
+  <rect x="32" y="80" width="64" height="32" rx="16" fill="#d1d5db"/>
+  <text x="50%" y="120" text-anchor="middle" fill="#6b7280" font-size="14" font-family="Arial" dy="-2">Profile</text>
+</svg>
