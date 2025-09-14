@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
   try {
     await fs.writeFile(tempFilePath, buffer);
 
-    const scriptPath = join(process.cwd(), 'app', 'api', 'analyze', 'python-script', 'kolam_analyzer_single.py');
+    const scriptPath = join(process.cwd(), 'app', 'api', 'kolam_analyzer_single.py');
     const command = `python "${scriptPath}" "${tempFilePath}"`;
     const { stdout, stderr } = await new Promise<{ stdout: string; stderr: string }>((resolve, reject) => {
       exec(command, { cwd: process.cwd() }, (error, stdout, stderr) => {
