@@ -13,11 +13,41 @@ import { CommunityPostModal } from '@/components/community/CommunityPostModal';
 import ReactConfetti from 'react-confetti';
 
 type Analysis = {
-  grid?: { rows: number; cols: number; dotCount: number }
-  symmetry?: string[]
-  classification?: { label: string; confidence: number; source: 'cv' | 'dataset' | 'gemini'; details?: Record<string, any> }
-  overlays?: { type: 'dots' | 'grid' | 'contours'; points?: number[][] }[]
+  dot_grid?: {
+    rows: number;
+    cols: number;
+    spacing_x: number;
+    spacing_y: number;
+    regularity_score: number;
+    num_dots: number;
+    sample_dots: number[][];
+  };
+  symmetry?: {
+    horizontal: number;
+    vertical: number;
+    diagonal: number;
+    rotational_90: number;
+    rotational_180: number;
+    primary_symmetry: string;
+    is_symmetric: boolean;
+  };
+  kolam_type?: string;
+  type_confidence?: number;
+  dl_classification?: string;
+  dl_confidence?: number;
+  repetition_patterns?: {
+    has_repetition: boolean;
+    repetition_score: number;
+    tile_size: [number, number];
+  };
+  characteristics?: {
+    edge_pixels: number;
+    edge_density: number;
+    num_contours: number;
+    complexity: string;
+  };
 }
+
 
 export default function RecognitionPage() {
   const [showPostModal, setShowPostModal] = React.useState(false);
@@ -102,7 +132,7 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
         name = geminiResult.kolamTypeNormalized || geminiResult.kolamType || '';
         explanation = geminiResult.explanation || '';
       } else if (datasetResult) {
-        name = datasetResult.classification?.label || '';
+        name = datasetResult.dl_classification || datasetResult.kolam_type || '';
         explanation = '';
       }
       setPostDetails(`${name}${explanation ? ': ' + explanation : ''}`);
@@ -172,14 +202,15 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
   // store annotation (non-blocking)
   storeAnnotation(file, display)
       } else {
-        const res = await fetch('/api/analyze', { method: 'POST', body: form })
+        // Step 1: Use new backend endpoint
+        const res = await fetch('https://kolam-backend-2.onrender.com/analyze', { method: 'POST', body: form })
         clearTimeout(t1)
         clearTimeout(t2)
         clearTimeout(t3)
         if (!res.ok) throw new Error(await res.text())
-        const data = (await res.json()) as Analysis
-        setDatasetResult(data)
-        setGeminiResult(null)
+        const data = await res.json();
+        setDatasetResult(data);
+        setGeminiResult(null);
       }
     } catch (e: any) {
       setError(e.message || 'Failed to analyze image')
@@ -429,117 +460,110 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
   {datasetResult && (
     
     <div className="space-y-4">
-                {datasetResult.classification && (
-                    <div className="rounded-xl border p-4 bg-gradient-to-br from-primary/10 to-accent/10">
-                      <div className="flex items-center gap-4">
-                        <div className="relative h-16 w-16">
-                          {/* radial progress */}
-                          <svg viewBox="0 0 36 36" className="h-16 w-16">
-                            <path className="text-muted stroke-current" strokeWidth="3" fill="none" pathLength={100}
-                              d="M18 2a16 16 0 1 1 0 32a16 16 0 1 1 0-32" opacity="0.2" />
-                            <path className="text-primary stroke-current" strokeWidth="3" strokeLinecap="round" fill="none" pathLength={100}
-                              strokeDasharray={`${Math.round((datasetResult!.classification.confidence) * 100)}, 100`}
-                              d="M18 2a16 16 0 1 1 0 32a16 16 0 1 1 0-32" />
-                          </svg>
-                          <div className="absolute inset-0 grid place-items-center text-sm font-semibold">{Math.round(datasetResult!.classification.confidence * 100)}%</div>
-                        </div>
-                        <div>
-                          <div className="text-sm uppercase text-muted-foreground">Classification</div>
-                          <div className="mt-1 text-xl font-semibold tracking-tight">
-                            {datasetResult.classification.label}
-                            <span className="ml-3 text-[10px] uppercase tracking-wider rounded-full bg-secondary/60 px-2 py-0.5">{datasetResult.classification.source}</span>
-                          </div>
-                        </div>
-                      </div>
-                      {/* confidence breakdown bar */}
-                      <div className="mt-3 h-2 w-full rounded-full bg-muted overflow-hidden">
-                        <div
-                          className="h-full bg-primary"
-                          style={{ width: `${Math.round(datasetResult.classification.confidence * 100)}%` }}
-                            title={`${Math.round(datasetResult.classification.confidence * 100)}% ${datasetResult.classification.label}`}
-                        />
-                      </div>
-                      <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
-                        <span>{Math.round(datasetResult.classification.confidence * 100)}% {datasetResult.classification.label}</span>
-                        <span>
-                          Other: {Math.max(0, 100 - Math.round(datasetResult.classification.confidence * 100))}%
-                        </span>
-                      </div>
-                      {datasetResult.classification.details && (
-                        <div className="mt-2 text-xs text-muted-foreground space-y-1">
-                          {Object.entries(datasetResult.classification.details).map(([k, v]) => (
-                            <div key={k}>
-                              <span className="font-medium">{k}:</span> {String(v)}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      <div className="mt-3 flex gap-2">
-                        {!preferGemini && datasetResult.classification.source !== 'gemini' && (
-                          <Button
-                            onClick={async () => {
-                              if (!file) return
-                              setReanalyzing(true)
-                              setProgress(10)
-                              try {
-                                const form = new FormData()
-                                form.append('image', file)
-                                const t1 = setTimeout(() => setProgress(40), 300)
-                                const t2 = setTimeout(() => setProgress(70), 900)
-                                const res = await fetch('/api/analyze/gemini', { method: 'POST', body: form })
-                                clearTimeout(t1)
-                                clearTimeout(t2)
-                                if (!res.ok) {
-                                  const text = await res.text()
-                                  throw new Error(text || 'Gemini reanalysis failed')
-                                }
-                                const data = await res.json()
-                                // Server may return { analysis, raw }; prefer raw for display
-                                const display = data?.raw ?? data?.analysis ?? data
-                                // Save Gemini-specific analysis separately so datasetResult remains unchanged
-                                setGeminiResult(display)
-                                // Log Gemini result for debugging/inspection
-                                // eslint-disable-next-line no-console
-                                console.log('Gemini analysis result:', display)
-                                // store for dataset building (non-blocking)
-                                storeAnnotation(file, display)
-                              } catch (e: any) {
-                                setError(e?.message || 'Failed to re-analyze with Gemini')
-                              } finally {
-                                setProgress(100)
-                                setReanalyzing(false)
-                              }
-                            }}
-                            disabled={reanalyzing}
-                          >
-                            {reanalyzing ? 'Re-analyzing  ' : 'Re-analyze with Gemini'}
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                  {datasetResult.grid && (
-                    <div className="rounded-xl border p-4 bg-card/50">
-                      <div className="text-sm uppercase text-muted-foreground">Dot Grid</div>
-                      <div className="mt-2 flex flex-wrap gap-2 text-sm">
-                        <span className="rounded-full bg-secondary/60 px-2 py-0.5">rows: {datasetResult.grid.rows}</span>
-                        <span className="rounded-full bg-secondary/60 px-2 py-0.5">cols: {datasetResult.grid.cols}</span>
-                        <span className="rounded-full bg-secondary/60 px-2 py-0.5">dots: {datasetResult.grid.dotCount}</span>
-                      </div>
-                    </div>
-                  )}
-                  {datasetResult.symmetry && datasetResult.symmetry.length > 0 && (
-                    <div className="rounded-xl border p-4 bg-card/50">
-                      <div className="text-sm uppercase text-muted-foreground">Symmetry</div>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {datasetResult.symmetry.map((s, i) => (
-                          <span key={i} className="rounded-full bg-accent/60 px-2 py-0.5 text-xs">{s}</span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  
-                </div>
+      {/* Dot Grid */}
+      {datasetResult.dot_grid && (
+        <div className="rounded-xl border p-4 bg-card/50">
+          <div className="text-sm uppercase text-muted-foreground">Dot Grid</div>
+          <div className="mt-2 flex flex-wrap gap-2 text-sm">
+            <span className="rounded-full bg-secondary/60 px-2 py-0.5">Rows: {datasetResult.dot_grid.rows}</span>
+            <span className="rounded-full bg-secondary/60 px-2 py-0.5">Cols: {datasetResult.dot_grid.cols}</span>
+            <span className="rounded-full bg-secondary/60 px-2 py-0.5">Spacing X: {datasetResult.dot_grid.spacing_x}</span>
+            <span className="rounded-full bg-secondary/60 px-2 py-0.5">Spacing Y: {datasetResult.dot_grid.spacing_y}</span>
+            <span className="rounded-full bg-secondary/60 px-2 py-0.5">Regularity: {datasetResult.dot_grid.regularity_score?.toFixed(2)}</span>
+            <span className="rounded-full bg-secondary/60 px-2 py-0.5">Dots: {datasetResult.dot_grid.num_dots}</span>
+          </div>
+          {datasetResult.dot_grid.sample_dots && (
+            <div className="mt-2 text-xs text-muted-foreground">Sample dots: {datasetResult.dot_grid.sample_dots.map((d: number[], i: number) => `(${d[0]},${d[1]})`).join(', ')}</div>
+          )}
+        </div>
+      )}
+      {/* Symmetry */}
+      {datasetResult.symmetry && (
+        <div className="rounded-xl border p-4 bg-card/50">
+          <div className="text-sm uppercase text-muted-foreground">Symmetry</div>
+          <div className="mt-2 flex flex-wrap gap-2 text-sm">
+            <span className="rounded-full bg-accent/60 px-2 py-0.5">Horizontal: {datasetResult.symmetry.horizontal?.toFixed(2)}</span>
+            <span className="rounded-full bg-accent/60 px-2 py-0.5">Vertical: {datasetResult.symmetry.vertical?.toFixed(2)}</span>
+            <span className="rounded-full bg-accent/60 px-2 py-0.5">Diagonal: {datasetResult.symmetry.diagonal?.toFixed(2)}</span>
+            <span className="rounded-full bg-accent/60 px-2 py-0.5">Rotational 90°: {datasetResult.symmetry.rotational_90?.toFixed(2)}</span>
+            <span className="rounded-full bg-accent/60 px-2 py-0.5">Rotational 180°: {datasetResult.symmetry.rotational_180?.toFixed(2)}</span>
+            <span className="rounded-full bg-accent/60 px-2 py-0.5">Primary: {datasetResult.symmetry.primary_symmetry}</span>
+            <span className="rounded-full bg-accent/60 px-2 py-0.5">Is Symmetric: {datasetResult.symmetry.is_symmetric ? 'Yes' : 'No'}</span>
+          </div>
+        </div>
+      )}
+      {/* Kolam Type & DL Classification */}
+      <div className="rounded-xl border p-4 bg-gradient-to-br from-primary/10 to-accent/10">
+        <div className="flex flex-col gap-2">
+          <div className="text-sm uppercase text-muted-foreground">Kolam Type</div>
+          <div className="text-xl font-semibold">{datasetResult.kolam_type ?? 'Unknown'}</div>
+          <div className="text-xs text-muted-foreground">Type Confidence: {typeof datasetResult.type_confidence === 'number' ? (datasetResult.type_confidence * 100).toFixed(1) + '%' : 'N/A'}</div>
+        </div>
+        <div className="mt-3 flex flex-col gap-2">
+          <div className="text-sm uppercase text-muted-foreground">DL Classification</div>
+          <div className="text-base font-semibold">{datasetResult.dl_classification ?? 'Unknown'}</div>
+          <div className="text-xs text-muted-foreground">DL Confidence: {typeof datasetResult.dl_confidence === 'number' ? (datasetResult.dl_confidence * 100).toFixed(1) + '%' : 'N/A'}</div>
+        </div>
+        {/* Always show Gemini reanalysis button when datasetResult is present */}
+        <div className="mt-3 flex gap-2">
+          <Button
+            onClick={async () => {
+              if (!file) return;
+              setReanalyzing(true);
+              setProgress(10);
+              try {
+                const form = new FormData();
+                form.append('image', file);
+                const t1 = setTimeout(() => setProgress(40), 300);
+                const t2 = setTimeout(() => setProgress(70), 900);
+                const res = await fetch('/api/analyze/gemini', { method: 'POST', body: form });
+                clearTimeout(t1);
+                clearTimeout(t2);
+                if (!res.ok) {
+                  const text = await res.text();
+                  throw new Error(text || 'Gemini reanalysis failed');
+                }
+                const data = await res.json();
+                const display = data?.raw ?? data?.analysis ?? data;
+                setGeminiResult(display);
+                storeAnnotation(file, display);
+              } catch (e: any) {
+                setError(e?.message || 'Failed to re-analyze with Gemini');
+              } finally {
+                setProgress(100);
+                setReanalyzing(false);
+              }
+            }}
+            disabled={reanalyzing}
+          >
+            {reanalyzing ? 'Re-analyzing…' : 'Re-analyze with Gemini'}
+          </Button>
+        </div>
+      </div>
+      {/* Repetition Patterns */}
+      {datasetResult.repetition_patterns && (
+        <div className="rounded-xl border p-4 bg-card/50">
+          <div className="text-sm uppercase text-muted-foreground">Repetition Patterns</div>
+          <div className="mt-2 flex flex-wrap gap-2 text-sm">
+            <span className="rounded-full bg-secondary/60 px-2 py-0.5">Has Repetition: {datasetResult.repetition_patterns.has_repetition ? 'Yes' : 'No'}</span>
+            <span className="rounded-full bg-secondary/60 px-2 py-0.5">Repetition Score: {datasetResult.repetition_patterns.repetition_score?.toFixed(2)}</span>
+            <span className="rounded-full bg-secondary/60 px-2 py-0.5">Tile Size: {datasetResult.repetition_patterns.tile_size?.join(' x ')}</span>
+          </div>
+        </div>
+      )}
+      {/* Characteristics */}
+      {datasetResult.characteristics && (
+        <div className="rounded-xl border p-4 bg-card/50">
+          <div className="text-sm uppercase text-muted-foreground">Characteristics</div>
+          <div className="mt-2 flex flex-wrap gap-2 text-sm">
+            <span className="rounded-full bg-secondary/60 px-2 py-0.5">Edge Pixels: {datasetResult.characteristics.edge_pixels}</span>
+            <span className="rounded-full bg-secondary/60 px-2 py-0.5">Edge Density: {datasetResult.characteristics.edge_density?.toFixed(4)}</span>
+            <span className="rounded-full bg-secondary/60 px-2 py-0.5">Contours: {datasetResult.characteristics.num_contours}</span>
+            <span className="rounded-full bg-secondary/60 px-2 py-0.5">Complexity: {datasetResult.characteristics.complexity}</span>
+          </div>
+        </div>
+      )}
+    </div>
               )}
         {geminiResult && (
           <div className="rounded-2xl border p-4 bg-gradient-to-br from-white/3 to-primary/6 shadow-lg">
@@ -652,36 +676,37 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
               <div className="flex items-center gap-2">
                 <div className="px-3 py-1 rounded bg-muted/10 text-xs">
                   <div className="font-medium">Dataset</div>
-                  <div className="text-muted-foreground">{datasetResult?.classification?.label ?? '—'}</div>
+                  <div className="text-muted-foreground">{datasetResult?.dl_classification ?? datasetResult?.kolam_type ?? '—'}</div>
                 </div>
                 <div className="px-3 py-1 rounded bg-muted/10 text-xs">
                   <div className="font-medium">Gemini</div>
                   <div className="text-muted-foreground">{geminiResult.kolamTypeNormalized ?? geminiResult.kolamType ?? '—'}</div>
                 </div>
+                {/* Always show Dataset reanalysis button when geminiResult is present */}
                 <Button
                   onClick={async () => {
-                    if (!file) return
-                    setReanalyzing(true)
-                    setProgress(10)
+                    if (!file) return;
+                    setReanalyzing(true);
+                    setProgress(10);
                     try {
-                      const form = new FormData()
-                      form.append('image', file)
-                      const t1 = setTimeout(() => setProgress(40), 300)
-                      const t2 = setTimeout(() => setProgress(70), 900)
-                      const res = await fetch('/api/analyze', { method: 'POST', body: form })
-                      clearTimeout(t1)
-                      clearTimeout(t2)
+                      const form = new FormData();
+                      form.append('image', file);
+                      const t1 = setTimeout(() => setProgress(40), 300);
+                      const t2 = setTimeout(() => setProgress(70), 900);
+                      const res = await fetch('https://kolam-backend-2.onrender.com/analyze', { method: 'POST', body: form });
+                      clearTimeout(t1);
+                      clearTimeout(t2);
                       if (!res.ok) {
-                        const text = await res.text()
-                        throw new Error(text || 'Dataset reanalysis failed')
+                        const text = await res.text();
+                        throw new Error(text || 'Dataset reanalysis failed');
                       }
-                      const data = (await res.json()) as Analysis
-                      setDatasetResult(data)
+                      const data = await res.json();
+                      setDatasetResult(data);
                     } catch (e: any) {
-                      setError(e?.message || 'Failed to re-analyze with dataset')
+                      setError(e?.message || 'Failed to re-analyze with dataset');
                     } finally {
-                      setProgress(100)
-                      setReanalyzing(false)
+                      setProgress(100);
+                      setReanalyzing(false);
                     }
                   }}
                   disabled={reanalyzing}
