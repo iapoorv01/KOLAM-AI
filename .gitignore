@@ -34,12 +34,4 @@ Thumbs.db
 
 # Logs
 *.log
-
-# Data
-archive/Kolam CSV files/Kolam CSV files/*.csv
-archive/Kolam109 Images/Kolam109 Images/*.jpg
-archive/Kolam19 Images/Kolam19 Images/*.jpg
-archive/Kolam29 Images/Kolam29 Images/*.jpg
-
-# Model files
-kolam_model.pkl
+=
