@@ -24,7 +24,8 @@ export async function POST(req: NextRequest) {
 
 
   const tempFileName = `upload-${uuidv4()}-${file.name}`;
-  const tempDir = '/tmp';
+  const os = await import('os');
+  const tempDir = os.tmpdir();
   const tempFilePath = join(tempDir, tempFileName);
 
   try {

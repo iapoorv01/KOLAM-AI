@@ -14,3 +14,32 @@ out
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# VSCode
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+*.tsbuildinfo
+
+# Logs
+*.log
+
+# Data
+archive/Kolam CSV files/Kolam CSV files/*.csv
+archive/Kolam109 Images/Kolam109 Images/*.jpg
+archive/Kolam19 Images/Kolam19 Images/*.jpg
+archive/Kolam29 Images/Kolam29 Images/*.jpg
+
+# Model files
+kolam_model.pkl
