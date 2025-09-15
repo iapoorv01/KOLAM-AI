@@ -16,7 +16,7 @@ export default function HomePage() {
       <main className="container py-8 flex flex-col items-center justify-center min-h-screen">
         <section className="w-full flex flex-col lg:grid lg:grid-cols-2 gap-6 items-center justify-center">
           <div className="w-full flex flex-col items-center justify-center text-center px-2">
-            <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight leading-tight">
+            <h1 className="text-4xl sm:text-5xl font-bold font-serif text-muted-foreground tracking-tight leading-tight">
               Kolam Ai: Digitizing heritage with Ai & Ar
             </h1>
             <p className="mt-4 text-lg text-muted-foreground">
@@ -87,9 +87,9 @@ export default function HomePage() {
             list={["Top creators", "Kolam Karma points", "Leaderboard rewards"]}
           />
           <KolamCard
-            title="AR Kolam Designer"
+            title="AR Kolam Visualizer"
             description="Place Kolams in real-world AR using your phone camera."
-            buttonText="Try AR Designer"
+            buttonText="Try AR Visualizer"
             buttonHref="/ar-designer"
             icon={<ImagePlus className="h-5 w-5 text-blue-400" />}
             list={["AR placement", "Mobile friendly", "Real-world preview"]}
@@ -103,11 +103,18 @@ export default function HomePage() {
             list={["History & culture", "Regional styles", "Interactive timeline"]}
           />
           <KolamCard
-            title="Secure Kolam Auth"
-            description="NFT/Blockchain proof of originality."
+            title="Festival Special Kolams 🌸"
+            description="AI auto-generates festival-themed Kolams (Diwali, Pongal, Onam). Add a calendar where special Kolams unlock on festival days."
             buttonText="Coming Soon"
-            icon={<ShieldCheck className="h-5 w-5 text-cyan-400" />}
-            list={["NFT proof", "Blockchain security", "Originality verification"]}
+            icon={<Sparkle className="h-5 w-5 text-pink-400" />}
+            list={["Diwali, Pongal, Onam themes", "Unlock on festival days", "AI-generated designs"]}
+          />
+          <KolamCard
+            title="Step-by-Step Learning Mode ✏"
+            description="Show animated tutorials: ‘connect dot 1 → dot 2 → …’. Users can learn how to draw Kolams in real life."
+            buttonText="Coming Soon"
+            icon={<Boxes className="h-5 w-5 text-green-400" />}
+            list={["Animated tutorials", "Dot-by-dot guidance", "Learn Kolam drawing"]}
           />
         </section>
 
@@ -118,27 +125,41 @@ export default function HomePage() {
               <div className="h-8 w-8 rounded-full bg-primary/15 grid place-items-center text-primary">1</div>
               <div>
                 <h4 className="font-semibold">MVP: Kolam Recognition</h4>
-                <p className="text-sm text-muted-foreground">Upload, analyze, visualize results. Done.</p>
+                <p className="text-sm text-muted-foreground">Upload a Kolam image, get instant AI analysis: dot grid, symmetry, style. <span className='font-bold text-green-600'>Live now!</span></p>
               </div>
             </div>
-            <div className="flex items-start gap-4 opacity-80">
+            <div className="flex items-start gap-4 opacity-90">
               <div className="h-8 w-8 rounded-full bg-accent grid place-items-center">2</div>
               <div>
                 <h4 className="font-semibold">AR Designer & Generator</h4>
-                <p className="text-sm text-muted-foreground">Create and place Kolams in AR; AI-generated patterns.</p>
+                <p className="text-sm text-muted-foreground">Create Kolams from prompts, visualize them in AR on your phone. <span className='font-bold text-green-600'>Live now!</span> <span className='italic'>Unleash creativity!</span></p>
               </div>
             </div>
-            <div className="flex items-start gap-4 opacity-80">
+            <div className="flex items-start gap-4 opacity-90">
               <div className="h-8 w-8 rounded-full bg-accent grid place-items-center">3</div>
               <div>
                 <h4 className="font-semibold">Community & Heritage</h4>
-                <p className="text-sm text-muted-foreground">Share, vote, learn. Secure originality with blockchain.</p>
+                <p className="text-sm text-muted-foreground">Share, vote, and download Kolams. Explore history, secure originality with blockchain. <span className='font-bold text-green-600'>Live now!</span></p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4 opacity-80">
+              <div className="h-8 w-8 rounded-full bg-pink-200 grid place-items-center text-pink-600">4</div>
+              <div>
+                <h4 className="font-semibold">Festival Special Kolams 🌸</h4>
+                <p className="text-sm text-muted-foreground">AI auto-generates festival-themed Kolams (Diwali, Pongal, Onam). <span className='italic'>Unlock special designs on festival days with our calendar!</span></p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4 opacity-80">
+              <div className="h-8 w-8 rounded-full bg-green-200 grid place-items-center text-green-600">5</div>
+              <div>
+                <h4 className="font-semibold">Step-by-Step Learning Mode ✏</h4>
+                <p className="text-sm text-muted-foreground">Animated tutorials: “connect dot 1 → dot 2 → …”. <span className='italic'>Learn to draw Kolams in real life, dot-by-dot!</span></p>
               </div>
             </div>
           </div>
         </section>
       </main>
-      <Footer />
+  {/* Footer is now handled globally in layout.tsx */}
       <FeedbackFloating />
     </div>
   )

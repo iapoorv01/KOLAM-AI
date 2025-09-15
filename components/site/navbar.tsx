@@ -28,17 +28,17 @@ export function Navbar() {
   }, [user]);
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-black/40 backdrop-blur supports-[backdrop-filter]:bg-black/30">
+    <header className="sticky top-0 z-40 w-full border-b bg-black/40 backdrop-blur supports-[backdrop-filter]:bg-black/30 font-display">
       <div className="container flex h-14 items-center justify-between">
         <Link
           href="/"
-          className="navbar-appname flex items-center gap-1 sm:gap-2 font-bold text-lg sm:text-xl tracking-tight sm:tracking-normal"
+          className="navbar-appname flex items-center gap-1 sm:gap-2 font-bold text-lg sm:text-2xl tracking-tight sm:tracking-normal font-serif text-muted-foreground drop-shadow"
           style={{ minWidth: 0 }}
         >
           <Sparkles className="h-6 w-6 sm:h-5 sm:w-5 text-accent flex-shrink-0" />
-          <span className="block whitespace-nowrap leading-none">Kolam <span className="font-extrabold">Ai</span></span>
+          <span className="block whitespace-nowrap leading-none font-serif">Kolam <span className="font-extrabold font-serif">Ai</span></span>
         </Link>
-        <nav className="flex items-center gap-6 text-sm text-muted-foreground" style={{ flex: 1, justifyContent: 'flex-end', minWidth: 0 }}>
+  <nav className="flex items-center gap-6 text-[1.08rem] sm:text-[1.15rem] font-serif text-muted-foreground" style={{ flex: 1, justifyContent: 'flex-end', minWidth: 0 }}>
           <Link href="/recognition" className="flex items-center gap-1">
             <span className="sm:hidden"><Microscope className="w-5 h-5" aria-label="Recognition" /></span>
             <span className="hidden sm:inline">Recognition</span>

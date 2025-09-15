@@ -470,7 +470,7 @@ export default function KolamCreationPage() {
         </div>
       )}
       </main>
-      <Footer />
+  {/* Footer is now handled globally in layout.tsx */}
     </div>
   );
 }

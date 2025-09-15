@@ -799,7 +799,7 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
   </div>
 )}
       </main>
-      <Footer />
+  {/* Footer is now handled globally in layout.tsx */}
     </div>
   )
 }

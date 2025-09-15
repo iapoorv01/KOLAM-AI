@@ -1164,7 +1164,7 @@ export default function HeritageExplorerPage() {
           </Button>
         </div>
       </main>
-      <Footer />
+  {/* Footer is now handled globally in layout.tsx */}
     </div>
   );
 }

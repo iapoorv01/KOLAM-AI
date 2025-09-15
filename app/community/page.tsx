@@ -14,7 +14,7 @@ export default function CommunityHubPage() {
         {/* TODO: Feed, post modal, leaderboard, profile links, etc. */}
   <CommunityFeed />
       </main>
-      <Footer />
+  {/* Footer is now handled globally in layout.tsx */}
     </div>
   );
 }

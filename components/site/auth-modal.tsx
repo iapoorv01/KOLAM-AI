@@ -67,7 +67,7 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
         <Button
           type="button"
           variant="outline"
-          className="w-full mt-4"
+            className="w-full mt-4 text-gray-800 drop-shadow-sm"
           onClick={handleGoogleSignIn}
           disabled={loading}
         >
@@ -154,7 +154,7 @@ export function SignUpForm({ onSuccess }: { onSuccess?: () => void }) {
         <Button
           type="button"
           variant="outline"
-          className="w-full mt-4"
+            className="w-full mt-4 text-gray-800 drop-shadow-sm"
           onClick={handleGoogleSignUp}
           disabled={loading}
         >

@@ -99,7 +99,7 @@ export default function ARKolamDesigner() {
             Please use your phone or tablet to place Kolam designs in Augmented Reality.<br />
           </div>
         </main>
-        <Footer />
+        {/* Footer is now handled globally in layout.tsx */}
       </div>
     );
   }
@@ -169,7 +169,7 @@ export default function ARKolamDesigner() {
           </Button>
         )}
       </main>
-      <Footer />
+      {/* Footer is now handled globally in layout.tsx */}
     </div>
   );
 }
