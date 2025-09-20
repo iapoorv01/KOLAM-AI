@@ -694,7 +694,7 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
                   <div className="font-medium">Gemini</div>
                   <div className="text-muted-foreground">{geminiResult.kolamTypeNormalized ?? geminiResult.kolamType ?? '—'}</div>
                 </div>
-                {/* Always show Dataset reanalysis button when geminiResult is present */}
+                {/* Always show Dataset reanalysis button when geminiResult is present. */}
                 <Button
                   onClick={async () => {
                     if (!file) return;
