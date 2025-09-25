@@ -37,36 +37,36 @@ export function SignInForm({ onSuccess }: { onSuccess?: () => void }) {
   }
 
   return (
-    <Card className="w-full max-w-md p-8 shadow-xl rounded-2xl border bg-gradient-to-br from-cyan-100/80 via-white to-blue-100/80 text-gray-800 mx-auto mt-16 font-display">
-      <h2 className="text-3xl font-bold font-serif mb-6 text-center text-cyan-700 drop-shadow">Sign In</h2>
+    <Card className="w-full max-w-md p-8 shadow-2xl rounded-3xl border-4 border-[#a67c52] bg-gradient-to-br from-[#f9e7c2]/90 via-[#fff]/80 to-[#a67c52]/80 text-[#7b1f1f] mx-auto mt-16 font-display" style={{boxShadow: '0 4px 32px #7b1f1f55, 0 0 0 8px #f9e7c2aa'}}>
+      <h2 className="text-4xl font-bold font-serif mb-6 text-center text-[#7b1f1f] drop-shadow-xl" style={{fontFamily: 'Georgia, Times, serif', textShadow: '0 2px 8px #f9e7c2, 0 0px 1px #a67c52'}}>
+        Sign In
+      </h2>
       <form onSubmit={handleSignIn} className="space-y-5">
         <div>
-          <Label htmlFor="email" className="text-gray-800">Email</Label>
-          <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required className="mt-1 focus-visible:ring-2 focus-visible:ring-primary" />
+          <Label htmlFor="email" className="text-[#7b1f1f] font-semibold">Email</Label>
+          <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required className="mt-1 focus-visible:ring-2 focus-visible:ring-[#a67c52] bg-[#f9e7c2]/60 text-[#7b1f1f] border-[#a67c52]" />
         </div>
         <div>
-          <Label htmlFor="password" className="text-gray-800">Password</Label>
-          <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required className="mt-1 focus-visible:ring-2 focus-visible:ring-primary" />
+          <Label htmlFor="password" className="text-[#7b1f1f] font-semibold">Password</Label>
+          <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required className="mt-1 focus-visible:ring-2 focus-visible:ring-[#a67c52] bg-[#f9e7c2]/60 text-[#7b1f1f] border-[#a67c52]" />
         </div>
         {error && <div className="text-destructive bg-destructive/10 border border-destructive rounded px-3 py-2 text-sm font-medium animate-pulse">{error}</div>}
-        <Button type="submit" className="w-full bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-600 text-white font-bold shadow-lg hover:from-blue-600 hover:to-cyan-500 transition-all duration-200 transform hover:scale-105 rounded-xl" disabled={loading}>
+        <Button type="submit" className="w-full bg-gradient-to-r from-[#a67c52] via-[#f9e7c2] to-[#7b1f1f] text-[#7b1f1f] font-bold shadow-lg hover:from-[#7b1f1f] hover:to-[#a67c52] hover:text-[#fff] transition-all duration-200 transform hover:scale-105 rounded-2xl border-2 border-[#a67c52]" disabled={loading}>
           {loading ? 'Loading...' : 'Sign In'}
         </Button>
       </form>
-      
       <div className="mt-6">
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
+            <span className="w-full border-t border-[#a67c52]" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+            <span className="bg-card px-2 text-[#a67c52] font-bold">Or continue with</span>
           </div>
         </div>
-        
         <Button
           type="button"
-          className="button w-full mt-4"
+          className="button w-full mt-4 bg-gradient-to-r from-[#a67c52] via-[#f9e7c2] to-[#7b1f1f] text-[#7b1f1f] font-bold border-2 border-[#a67c52] shadow-lg hover:from-[#7b1f1f] hover:to-[#a67c52] hover:text-[#fff] transition-all duration-200 transform hover:scale-105 rounded-2xl"
           onClick={handleGoogleSignIn}
           disabled={loading}
         >
@@ -127,36 +127,36 @@ export function SignUpForm({ onSuccess }: { onSuccess?: () => void }) {
   }
 
   return (
-    <Card className="w-full max-w-md p-8 shadow-xl rounded-2xl border bg-gradient-to-br from-cyan-100/80 via-white to-blue-100/80 text-gray-800 mx-auto mt-16 font-display">
-      <h2 className="text-3xl font-bold font-serif mb-6 text-center text-cyan-700 drop-shadow">Sign Up</h2>
+    <Card className="w-full max-w-md p-8 shadow-2xl rounded-3xl border-4 border-[#a67c52] bg-gradient-to-br from-[#f9e7c2]/90 via-[#fff]/80 to-[#a67c52]/80 text-[#7b1f1f] mx-auto mt-16 font-display" style={{boxShadow: '0 4px 32px #7b1f1f55, 0 0 0 8px #f9e7c2aa'}}>
+      <h2 className="text-4xl font-bold font-serif mb-6 text-center text-[#7b1f1f] drop-shadow-xl" style={{fontFamily: 'Georgia, Times, serif', textShadow: '0 2px 8px #f9e7c2, 0 0px 1px #a67c52'}}>
+        Sign Up
+      </h2>
       <form onSubmit={handleSignUp} className="space-y-5">
         <div>
-          <Label htmlFor="email" className="text-gray-800">Email</Label>
-          <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required className="mt-1 focus-visible:ring-2 focus-visible:ring-primary" />
+          <Label htmlFor="email" className="text-[#7b1f1f] font-semibold">Email</Label>
+          <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required className="mt-1 focus-visible:ring-2 focus-visible:ring-[#a67c52] bg-[#f9e7c2]/60 text-[#7b1f1f] border-[#a67c52]" />
         </div>
         <div>
-          <Label htmlFor="password" className="text-gray-800">Password</Label>
-          <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required className="mt-1 focus-visible:ring-2 focus-visible:ring-primary" />
+          <Label htmlFor="password" className="text-[#7b1f1f] font-semibold">Password</Label>
+          <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required className="mt-1 focus-visible:ring-2 focus-visible:ring-[#a67c52] bg-[#f9e7c2]/60 text-[#7b1f1f] border-[#a67c52]" />
         </div>
         {error && <div className="text-destructive bg-destructive/10 border border-destructive rounded px-3 py-2 text-sm font-medium animate-pulse">{error}</div>}
-        <Button type="submit" className="w-full bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-600 text-white font-bold shadow-lg hover:from-blue-600 hover:to-cyan-500 transition-all duration-200 transform hover:scale-105 rounded-xl" disabled={loading}>
+        <Button type="submit" className="w-full bg-gradient-to-r from-[#a67c52] via-[#f9e7c2] to-[#7b1f1f] text-[#7b1f1f] font-bold shadow-lg hover:from-[#7b1f1f] hover:to-[#a67c52] hover:text-[#fff] transition-all duration-200 transform hover:scale-105 rounded-2xl border-2 border-[#a67c52]" disabled={loading}>
           {loading ? 'Loading...' : 'Sign Up'}
         </Button>
       </form>
-      
       <div className="mt-6">
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
+            <span className="w-full border-t border-[#a67c52]" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+            <span className="bg-card px-2 text-[#a67c52] font-bold">Or continue with</span>
           </div>
         </div>
-        
         <Button
           type="button"
-          className="button w-full mt-4"
+          className="button w-full mt-4 bg-gradient-to-r from-[#a67c52] via-[#f9e7c2] to-[#7b1f1f] text-[#7b1f1f] font-bold border-2 border-[#a67c52] shadow-lg hover:from-[#7b1f1f] hover:to-[#a67c52] hover:text-[#fff] transition-all duration-200 transform hover:scale-105 rounded-2xl"
           onClick={handleGoogleSignUp}
           disabled={loading}
         >

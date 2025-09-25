@@ -110,29 +110,31 @@ export function CommunityFeed() {
 
   return (
   <div className="w-full max-w-xs sm:max-w-md md:max-w-3xl lg:max-w-5xl xl:max-w-7xl mx-auto px-2 sm:px-4 md:px-8 lg:px-16 xl:px-24">
-      <h2 className="text-2xl md:text-3xl font-bold font-serif text-muted-foreground drop-shadow mb-6 text-center">Community Feed</h2>
+      <h2 className="text-3xl md:text-4xl font-extrabold font-serif text-[#8B0000] drop-shadow-xl mb-6 text-center tracking-wide border-b-4 border-yellow-700 pb-2" style={{fontFamily: 'Georgia, serif'}}>Kolam Community Feed 🪔</h2>
       {posts.length === 0 && (
-        <div className="rounded-2xl border bg-gradient-to-br from-cyan-100/80 via-white to-blue-100/80 p-6 shadow text-center text-muted-foreground">No posts yet.</div>
+        <div className="rounded-3xl border-2 border-yellow-700 bg-[#fff8e1]/90 p-6 shadow-xl text-center text-[#8B0000] font-serif">No posts yet.</div>
       )}
       {posts.map(post => (
-        <div key={post.id} className="rounded-2xl border bg-white dark:bg-gray-900 p-3 sm:p-5 md:p-8 lg:p-10 mb-6 sm:mb-8 shadow-xl max-w-full">
-          <Image src={post.image_url} alt="Kolam" width={640} height={320} className="w-full max-h-64 object-contain rounded-xl border-2 border-cyan-200" />
+        <div key={post.id} className="rounded-3xl border-2 border-yellow-700 bg-gradient-to-br from-[#fff8e1] via-[#ffe4b5] to-[#ffd700] p-3 sm:p-5 md:p-8 lg:p-10 mb-6 sm:mb-8 shadow-2xl max-w-full relative overflow-hidden">
+          {/* Kolam motif overlay */}
+          <div className="absolute inset-0 pointer-events-none opacity-10 bg-[url('/kolam-hero.jpg')] bg-repeat" />
+          <Image src={post.image_url} alt="Kolam" width={640} height={320} className="w-full max-h-64 object-contain rounded-xl border-4 border-yellow-700 shadow" />
           <div className="mt-3 flex items-center gap-3">
             <Link href={`/profile/${post.profiles?.id}`} className="flex items-center gap-2">
-              <Image src={post.profiles?.profile_image_url || '/default-profile.png'} alt="Profile" width={32} height={32} className="h-8 w-8 rounded-full border-2 border-cyan-300" />
-              <span className="font-semibold hover:underline text-cyan-700">{post.profiles?.username}</span>
+              <Image src={post.profiles?.profile_image_url || '/default-profile.png'} alt="Profile" width={32} height={32} className="h-8 w-8 rounded-full border-2 border-yellow-700" />
+              <span className="font-bold font-serif text-[#8B0000] hover:underline" style={{fontFamily: 'Georgia, serif'}}>{post.profiles?.username}</span>
             </Link>
           </div>
-          <div className="text-sm text-muted-foreground mt-2 mb-3 font-display">{post.description}</div>
+          <div className="text-base text-[#4B2E05] mt-2 mb-3 font-serif drop-shadow" style={{fontFamily: 'Georgia, serif'}}>{post.description}</div>
           <div className="flex flex-wrap gap-2 mb-3 items-center">
-            <Button size="sm" className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold shadow hover:from-cyan-600 hover:to-blue-600 transition-all duration-200 transform hover:scale-105" onClick={() => handleLike(post.id)}>
-              👍 Like
+            <Button size="sm" className="bg-gradient-to-r from-yellow-600 to-[#8B0000] text-white font-bold shadow hover:from-yellow-700 hover:to-red-800 transition-all duration-200 transform hover:scale-105 border-2 border-yellow-700">
+              <span onClick={() => handleLike(post.id)}>👍 Like</span>
             </Button>
-            <span className="text-xs text-teal-700 font-bold">{likes[post.id] || 0} Likes</span>
-            <Button size="sm" variant="outline" className="border-cyan-300 text-cyan-700 font-semibold" asChild>
+            <span className="text-xs text-yellow-900 font-bold font-serif">{likes[post.id] || 0} Likes</span>
+            <Button size="sm" variant="outline" className="border-yellow-700 text-[#8B0000] font-semibold font-serif" asChild>
               <a href={post.image_url} download>⬇️ Download</a>
             </Button>
-            <Button size="sm" className="bg-gradient-to-r from-purple-500 to-cyan-500 text-white font-bold shadow hover:from-purple-600 hover:to-cyan-600 transition-all duration-200 transform hover:scale-105" disabled={!!post.loading} onClick={async () => {
+            <Button size="sm" className="bg-gradient-to-r from-yellow-700 to-indigo-700 text-white font-bold shadow hover:from-yellow-800 hover:to-indigo-900 transition-all duration-200 transform hover:scale-105 border-2 border-yellow-700" disabled={!!post.loading} onClick={async () => {
               setPosts(posts => posts.map(p => p.id === post.id ? { ...p, loading: true } : p));
               try {
                 // Fetch image and send to remove.bg API
@@ -172,17 +174,17 @@ export function CommunityFeed() {
               placeholder="Add a comment..."
               value={commentText[post.id] || ""}
               onChange={e => setCommentText({ ...commentText, [post.id]: e.target.value })}
-              className="border border-cyan-300 rounded-lg px-3 py-2 w-full mb-2 text-gray-800 dark:text-gray-100 bg-cyan-50 dark:bg-cyan-950 focus-visible:ring-2 focus-visible:ring-cyan-400 transition"
+              className="border-2 border-yellow-700 rounded-lg px-3 py-2 w-full mb-2 text-[#8B0000] bg-[#fff8e1] focus-visible:ring-2 focus-visible:ring-yellow-700 font-serif"
             />
-            <Button size="sm" className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold shadow hover:from-cyan-600 hover:to-blue-600 transition-all duration-200 transform hover:scale-105" onClick={() => handleComment(post.id)}>
+            <Button size="sm" className="bg-gradient-to-r from-yellow-600 to-[#8B0000] text-white font-bold shadow hover:from-yellow-700 hover:to-red-800 transition-all duration-200 transform hover:scale-105 border-2 border-yellow-700" onClick={() => handleComment(post.id)}>
               💬 Comment
             </Button>
           </div>
           <div className="mt-2">
             {comments[post.id]?.length > 0 && (
-              <div className="bg-cyan-50 dark:bg-cyan-950 rounded-xl p-2 border border-cyan-100 dark:border-cyan-900">
+              <div className="bg-[#fff8e1] rounded-xl p-2 border-2 border-yellow-700">
                 {comments[post.id].map((c, i) => (
-                  <div key={i} className="text-xs text-gray-700 dark:text-gray-200 mb-1"><span className="font-semibold text-teal-800 dark:text-teal-300">{c.username}:</span> {c.text}</div>
+                  <div key={i} className="text-xs text-[#8B0000] mb-1 font-serif"><span className="font-bold text-yellow-900">{c.username}:</span> {c.text}</div>
                 ))}
               </div>
             )}

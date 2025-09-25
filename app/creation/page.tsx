@@ -278,28 +278,50 @@ export default function KolamCreationPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-secondary/10 font-display">
+  <div className="min-h-screen font-display">
       <Navbar />
-      <main className="container py-8 md:py-12 flex flex-col items-start justify-start">
+      <main className="container py-10 flex flex-col items-start justify-start">
         <div className="w-full max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-6xl px-2 md:px-6 lg:px-8 xl:px-12">
-          <div className="mb-8 text-left">
-            <h1 className="text-3xl md:text-4xl font-bold font-serif text-muted-foreground drop-shadow-xl mb-2 tracking-tight leading-tight">
-              Kolam Generator
+          <div className="mb-10 text-left">
+            <h1
+              className="text-4xl md:text-5xl font-extrabold font-serif mb-4 text-center tracking-widest uppercase border-b-4 border-yellow-500 pb-2"
+              style={{
+                fontFamily: 'Georgia, serif',
+                color: '#FFD700',
+                letterSpacing: '0.12em',
+                textShadow: '0 2px 12px rgba(255,215,0,0.7), 0 1px 0 #fff',
+                wordBreak: 'break-word',
+                overflowWrap: 'anywhere',
+              }}
+            >
+              Kolam Generator 🪔
             </h1>
-            <p className="text-base md:text-lg text-white/80 font-display mb-2 drop-shadow">Create a Kolam pattern by choosing options or uploading an image. Responsive for laptop and mobile.</p>
+            <p
+              className="text-lg md:text-xl font-bold font-serif mb-2 text-center tracking-wide"
+              style={{
+                color: '#FFD700',
+                textShadow: '0 2px 8px rgba(255,215,0,0.7), 0 1px 0 #fff',
+                wordBreak: 'break-word',
+                overflowWrap: 'anywhere',
+              }}
+            >
+              Create a Kolam pattern by choosing options or uploading an image.<br className="hidden md:inline" />Responsive for laptop and mobile.
+            </p>
           </div>
-          <div className="grid gap-8 lg:grid-cols-2">
-            <Card className="bg-gradient-to-br from-cyan-100/80 via-white to-blue-100/80 border border-cyan-300 shadow-lg rounded-2xl">
+          <div className="grid gap-10 lg:grid-cols-2">
+            <Card className="bg-gradient-to-br from-[#fffde7] via-[#ffe082] to-[#ffd700] border-4 border-yellow-500 shadow-2xl rounded-3xl relative overflow-hidden">
+              {/* Kolam motif background */}
+              <div className="absolute inset-0 pointer-events-none opacity-10 bg-[url('/kolam-hero.jpg')] bg-repeat" style={{zIndex:0}} />
               <CardHeader>
-                <CardTitle className="text-cyan-700 font-serif">Kolam Options</CardTitle>
-                <CardDescription className="text-cyan-600">Choose design parameters or upload an image.</CardDescription>
+                <CardTitle className="text-yellow-700 font-extrabold font-serif text-2xl">Kolam Options</CardTitle>
+                <CardDescription className="text-yellow-700 font-bold">Choose design parameters or upload an image.</CardDescription>
               </CardHeader>
               <CardContent>
                 <form className="space-y-4">
                   {/* ...existing code for form fields... */}
                   <div>
-                    <label className="block text-sm font-semibold mb-1 text-cyan-700">Kolam Type</label>
-                    <select name="kolamType" value={form.kolamType} onChange={handleChange} className="w-full border-cyan-300 rounded-lg px-2 py-2 bg-cyan-50 text-gray-800 focus:ring-2 focus:ring-cyan-400">
+                    <label className="block text-sm font-bold mb-1 text-yellow-700 font-serif">Kolam Type</label>
+                    <select name="kolamType" value={form.kolamType} onChange={handleChange} className="w-full border-yellow-400 rounded-xl px-2 py-2 bg-yellow-50 text-yellow-900 font-serif focus:ring-2 focus:ring-yellow-400">
                       <option value="">(Random)</option>
                       {kolamTypes.map((type) => (
                         <option key={type} value={type}>{type}</option>
@@ -308,8 +330,8 @@ export default function KolamCreationPage() {
                   </div>
                   {/* ...repeat for other select fields, updating colors to cyan/blue and rounded-lg... */}
                   <div>
-                    <label className="block text-sm font-semibold mb-1 text-cyan-700">Grid Size</label>
-                    <select name="gridSize" value={form.gridSize} onChange={handleChange} className="w-full border-cyan-300 rounded-lg px-2 py-2 bg-cyan-50 text-gray-800 focus:ring-2 focus:ring-cyan-400">
+                    <label className="block text-sm font-bold mb-1 text-yellow-700 font-serif">Grid Size</label>
+                    <select name="gridSize" value={form.gridSize} onChange={handleChange} className="w-full border-yellow-400 rounded-xl px-2 py-2 bg-yellow-50 text-yellow-900 font-serif focus:ring-2 focus:ring-yellow-400">
                       <option value="">(Random)</option>
                       {gridSizes.filter(s => s).map((size) => (
                         <option key={size} value={size}>{size}</option>
@@ -317,8 +339,8 @@ export default function KolamCreationPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold mb-1 text-cyan-700">Symmetry Type</label>
-                    <select name="symmetryType" value={form.symmetryType} onChange={handleChange} className="w-full border-cyan-300 rounded-lg px-2 py-2 bg-cyan-50 text-gray-800 focus:ring-2 focus:ring-cyan-400">
+                    <label className="block text-sm font-bold mb-1 text-yellow-700 font-serif">Symmetry Type</label>
+                    <select name="symmetryType" value={form.symmetryType} onChange={handleChange} className="w-full border-yellow-400 rounded-xl px-2 py-2 bg-yellow-50 text-yellow-900 font-serif focus:ring-2 focus:ring-yellow-400">
                       <option value="">(Random)</option>
                       {symmetryTypes.filter(s => s).map((sym) => (
                         <option key={sym} value={sym}>{sym}</option>
@@ -326,8 +348,8 @@ export default function KolamCreationPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold mb-1 text-cyan-700">Path Style / Line Rules</label>
-                    <select name="pathStyle" value={form.pathStyle} onChange={handleChange} className="w-full border-cyan-300 rounded-lg px-2 py-2 bg-cyan-50 text-gray-800 focus:ring-2 focus:ring-cyan-400">
+                    <label className="block text-sm font-bold mb-1 text-yellow-700 font-serif">Path Style / Line Rules</label>
+                    <select name="pathStyle" value={form.pathStyle} onChange={handleChange} className="w-full border-yellow-400 rounded-xl px-2 py-2 bg-yellow-50 text-yellow-900 font-serif focus:ring-2 focus:ring-yellow-400">
                       <option value="">(Random)</option>
                       {pathStyles.filter(s => s).map((style) => (
                         <option key={style} value={style}>{style}</option>
@@ -335,8 +357,8 @@ export default function KolamCreationPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold mb-1 text-cyan-700">Dot Grid Type</label>
-                    <select name="dotGridType" value={form.dotGridType} onChange={handleChange} className="w-full border-cyan-300 rounded-lg px-2 py-2 bg-cyan-50 text-gray-800 focus:ring-2 focus:ring-cyan-400">
+                    <label className="block text-sm font-bold mb-1 text-yellow-700 font-serif">Dot Grid Type</label>
+                    <select name="dotGridType" value={form.dotGridType} onChange={handleChange} className="w-full border-yellow-400 rounded-xl px-2 py-2 bg-yellow-50 text-yellow-900 font-serif focus:ring-2 focus:ring-yellow-400">
                       <option value="">(Random)</option>
                       {dotGridTypes.filter(s => s).map((dot) => (
                         <option key={dot} value={dot}>{dot}</option>
@@ -344,8 +366,8 @@ export default function KolamCreationPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold mb-1 text-cyan-700">Cultural Use / Context</label>
-                    <select name="culturalContext" value={form.culturalContext} onChange={handleChange} className="w-full border-cyan-300 rounded-lg px-2 py-2 bg-cyan-50 text-gray-800 focus:ring-2 focus:ring-cyan-400">
+                    <label className="block text-sm font-bold mb-1 text-yellow-700 font-serif">Cultural Use / Context</label>
+                    <select name="culturalContext" value={form.culturalContext} onChange={handleChange} className="w-full border-yellow-400 rounded-xl px-2 py-2 bg-yellow-50 text-yellow-900 font-serif focus:ring-2 focus:ring-yellow-400">
                       <option value="">(Random)</option>
                       {culturalContexts.filter(s => s).map((ctx) => (
                         <option key={ctx} value={ctx}>{ctx}</option>
@@ -353,32 +375,34 @@ export default function KolamCreationPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold mb-1 text-cyan-700">Or upload an image</label>
-                    <Input type="file" accept="image/*" onChange={handleImage} className="bg-cyan-50 text-gray-800 border-cyan-300 focus:ring-2 focus:ring-cyan-400 rounded-lg" />
+                    <label className="block text-sm font-bold mb-1 text-yellow-700 font-serif">Or upload an image</label>
+                    <Input type="file" accept="image/*" onChange={handleImage} className="bg-yellow-50 text-yellow-900 border-yellow-400 focus:ring-2 focus:ring-yellow-400 rounded-xl font-serif" />
                     {variantImage && (
                       <div className="mt-2">
-                        <span className="text-xs text-muted-foreground">Image loaded for variant creation:</span>
-                        <Image src={variantImage || '/default-kolam.png'} alt="Variant Preview" width={400} height={160} className="w-full max-h-40 object-contain border rounded-xl mt-1" />
+                        <span className="text-xs text-yellow-700 font-serif">Image loaded for variant creation:</span>
+                        <Image src={variantImage || '/default-kolam.png'} alt="Variant Preview" width={400} height={160} className="w-full max-h-40 object-contain border-2 border-yellow-400 rounded-2xl mt-1" />
                       </div>
                     )}
                   </div>
-                  <Button type="button" onClick={handleGenerate} disabled={loading} className="w-full mt-2 bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-600 text-white font-bold shadow-lg hover:from-blue-600 hover:to-cyan-500 transition-all duration-200 transform hover:scale-105 border-blue-700 rounded-xl">
+                  <Button type="button" onClick={handleGenerate} disabled={loading} className="w-full mt-2 bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-600 text-white font-extrabold shadow-xl hover:from-yellow-600 hover:to-yellow-500 transition-all duration-200 transform hover:scale-105 border-yellow-700 rounded-2xl font-serif">
                     {loading ? "Generating…" : variantImage ? "Create Variant" : "Generate Kolam"}
                   </Button>
                 </form>
                 {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
               </CardContent>
             </Card>
-            <Card className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border">
+            <Card className="bg-gradient-to-br from-[#fffde7] via-[#ffe082] to-[#ffd700] dark:bg-yellow-900 rounded-3xl shadow-2xl border-4 border-yellow-500 relative overflow-hidden">
+              {/* Kolam motif background */}
+              <div className="absolute inset-0 pointer-events-none opacity-10 bg-[url('/kolam-hero.jpg')] bg-repeat" style={{zIndex:0}} />
               <CardHeader>
-                <CardTitle className="font-serif">Result</CardTitle>
-                <CardDescription>Generated Kolam and details</CardDescription>
+                <CardTitle className="font-extrabold font-serif text-yellow-700 text-2xl">Result</CardTitle>
+                <CardDescription className="font-bold text-yellow-700">Generated Kolam and details</CardDescription>
               </CardHeader>
               <CardContent>
                 {resultImage ? (
                   <div className="flex flex-col items-center gap-4">
-                    <Image src={resultImage} alt="Generated Kolam" width={400} height={400} className="rounded-xl border-2 border-cyan-200 object-contain max-h-80 w-full" />
-                    <Button type="button" onClick={handleRecreateVariant} disabled={loading} className="w-full bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-600 text-white font-bold shadow-lg hover:from-blue-600 hover:to-cyan-500 transition-all duration-200 transform hover:scale-105 rounded-xl">
+                    <Image src={resultImage} alt="Generated Kolam" width={400} height={400} className="rounded-2xl border-4 border-yellow-400 object-contain max-h-80 w-full bg-yellow-50 shadow-xl" />
+                    <Button type="button" onClick={handleRecreateVariant} disabled={loading} className="w-full bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-600 text-white font-extrabold shadow-xl hover:from-yellow-600 hover:to-yellow-500 transition-all duration-200 transform hover:scale-105 rounded-2xl font-serif">
                       {loading ? "Creating Variant…" : "Recreate Variant"}
                     </Button>
                     <Button type="button" disabled={loading} onClick={async () => {
@@ -412,16 +436,16 @@ export default function KolamCreationPage() {
                         alert('Failed to prepare AR visualization.');
                         setLoading(false);
                       }
-                    }} className="w-full bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-600 text-white font-bold shadow-lg hover:from-blue-600 hover:to-cyan-500 transition-all duration-200 transform hover:scale-105 mt-2 rounded-xl">
+                    }} className="w-full bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-600 text-white font-extrabold shadow-xl hover:from-yellow-600 hover:to-yellow-500 transition-all duration-200 transform hover:scale-105 mt-2 rounded-2xl font-serif">
                       {loading ? "Preparing AR…" : "🪄 Visualize in AR"}
                     </Button>
                   </div>
                 ) : (
-                  <div className="text-muted-foreground text-center">No Kolam generated yet.</div>
+                  <div className="text-yellow-700 text-center font-bold">No Kolam generated yet.</div>
                 )}
                 {resultText && (
-                  <div className="mt-4 p-3 rounded-xl bg-cyan-50 dark:bg-cyan-950 text-sm text-foreground/90 border border-cyan-100 dark:border-cyan-900">
-                    <strong>Details:</strong> {resultText}
+                  <div className="mt-4 p-4 rounded-2xl bg-yellow-50 dark:bg-yellow-900 text-base border-2 border-yellow-400 font-serif" style={{ color: '#FFD700', textShadow: '0 1px 8px rgba(255,215,0,0.5)' }}>
+                    <strong style={{ color: '#FFD700' }}>Details:</strong> {resultText}
                   </div>
                 )}
               </CardContent>

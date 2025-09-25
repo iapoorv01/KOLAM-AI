@@ -10,9 +10,7 @@
 }
 body {
   min-height: 100vh;
-  background: linear-gradient(270deg, #e0c3fc, #8ec5fc, #f9f9f9, #fcb7b7);
-  background-size: 800% 800%;
-  animation: gradientMove 20s ease-in-out infinite;
+  /* Removed animated gradient background for global video background */
 }
 
 @keyframes gradientMove {
@@ -62,8 +60,7 @@ body {
   height: 100%;
   border-radius: 9px;
   border: solid 1px #202222;
-  background-size: 20px 20px;
-  background: radial-gradient(circle 280px at 0% 0%, #444444, #0c0d0d);
+  /* Removed grid/radial background for global video background */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -713,17 +710,77 @@ body {
 * { @apply border-border; }
 body {
   @apply bg-background text-foreground antialiased;
-  /* Layered gradients + subtle grid */
-  background-image:
-    radial-gradient(800px 400px at -10% -10%, rgba(118,75,255,0.18), rgba(0,0,0,0)),
-    radial-gradient(600px 300px at 110% 10%, rgba(14,165,233,0.18), rgba(0,0,0,0)),
-    linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0)),
-    linear-gradient(transparent 0, transparent 22px, rgba(255,255,255,0.04) 23px),
-    linear-gradient(90deg, transparent 0, transparent 22px, rgba(255,255,255,0.04) 23px);
-  background-size:
-    100% 100%, 100% 100%, 100% 100%, 24px 24px, 24px 24px;
-  background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
+  /* Global video background using CSS only */
+  position: relative;
 }
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  background: transparent;
+  display: block;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2;
+  pointer-events: none;
+  background: transparent;
+  display: block;
+  /* Video background using object-fit and mask for fallback */
+  background: url('/Bg.mp4') no-repeat center center fixed;
+  background-size: cover;
+  opacity: 1;
+}
+
+
+/* Global video background styles */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  background: transparent;
+}
+
+#global-video-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  z-index: -2;
+  pointer-events: none;
+}
+
+@media (max-width: 600px) {
+  #global-video-bg {
+    width: 100vw;
+    height: 100vh;
+
+    border-radius: 24px;
+    box-shadow: 0 4px 32px 0 rgba(0,0,0,0.18);
+    object-fit: cover;
+    background: #000;
+  }
+}
+
 
 .shimmer {
   background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0) 100%);
@@ -1197,4 +1254,12 @@ body {
 
 .animate-fade-in {
   animation: fade-in 0.6s ease-out;
+}
+
+@keyframes spin-slow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+  animation: spin-slow 12s linear infinite;
 }

@@ -1,5 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react';
+import Image from "next/image";
 
 interface FestivalEvent {
   summary: string;
@@ -91,48 +92,48 @@ export default function FestivalCalendar() {
   }
 
   return (
-    <div className="p-6 rounded-2xl shadow-xl border bg-gradient-to-br from-cyan-100/80 via-white to-blue-100/80 backdrop-blur">
-      <div className="flex items-center gap-2 mb-4">
-        <span className="inline-block bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full p-2 shadow">
-          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="4"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>
+    <div className="p-8 rounded-3xl shadow-2xl border-4 border-yellow-500 bg-gradient-to-br from-[#fffde7] via-[#ffe082] to-[#ffd700]">
+      <div className="flex items-center gap-3 mb-6">
+        <span className="inline-block bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full p-3 shadow">
+          <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="4"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>
         </span>
-        <h3 className="text-2xl font-bold font-serif text-cyan-700 drop-shadow">Festival Kolams Calendar</h3>
+        <h3 className="text-3xl font-extrabold font-serif text-yellow-700 drop-shadow-xl tracking-wide" style={{fontFamily: 'Georgia, serif'}}>Festival Kolams Calendar</h3>
       </div>
       {loading ? (
-        <div className="text-cyan-600 font-semibold animate-pulse">Loading festivals…</div>
+        <div className="text-yellow-700 font-bold animate-pulse">Loading festivals…</div>
       ) : festivals.length === 0 ? (
-        <div className="text-blue-600 font-semibold">No upcoming festivals found.</div>
+        <div className="text-yellow-700 font-bold">No upcoming festivals found.</div>
       ) : (
         <>
-          <ul className="space-y-2 mb-4">
+          <ul className="space-y-3 mb-6">
             {festivals.map((event, idx) => {
               const isToday = event.start.date === todayStr;
               return (
-                <li key={idx} className={`flex items-center gap-3 px-3 py-2 rounded-xl border ${isToday ? 'bg-cyan-100 border-cyan-400 shadow-lg' : 'bg-white border-blue-100'} transition-all duration-200`}>
-                  <span className={`font-semibold text-cyan-700 ${isToday ? 'text-lg' : 'text-base'}`}>{event.summary}</span>
-                  <span className={`text-xs px-2 py-1 rounded-full ${isToday ? 'bg-cyan-500 text-white' : 'bg-blue-100 text-blue-700'}`}>{event.start.date}</span>
+                <li key={idx} className={`flex items-center gap-4 px-4 py-3 rounded-2xl border-2 ${isToday ? 'bg-yellow-100 border-yellow-500 shadow-xl' : 'bg-[#fffde7] border-yellow-200'} transition-all duration-200`}> 
+                  <span className={`font-extrabold font-serif text-yellow-800 ${isToday ? 'text-xl' : 'text-lg'}`}>{event.summary}</span>
+                  <span className={`text-xs px-3 py-1 rounded-full font-bold ${isToday ? 'bg-yellow-500 text-white' : 'bg-yellow-200 text-yellow-800'}`}>{event.start.date}</span>
                   {isToday && <span className="ml-2 text-pink-500 font-bold animate-bounce">🎉 Today!</span>}
                 </li>
               );
             })}
           </ul>
           {todayFestival && (
-            <div className="mt-6 p-4 rounded-xl bg-gradient-to-br from-cyan-50 via-white to-blue-50 border border-cyan-200 shadow">
-              <h4 className="text-lg font-bold text-cyan-700 mb-2 flex items-center gap-2"><span>✨</span> Generate a Kolam for <span className="text-pink-600">{todayFestival.summary}</span></h4>
+            <div className="mt-8 p-6 rounded-2xl bg-gradient-to-br from-yellow-50 via-yellow-100 to-yellow-200 border-2 border-yellow-400 shadow-xl">
+              <h4 className="text-xl font-extrabold text-yellow-700 mb-4 flex items-center gap-2 font-serif"><span>✨</span> Generate a Kolam for <span className="text-pink-600">{todayFestival.summary}</span></h4>
               <button
-                className="px-5 py-2 bg-gradient-to-r from-cyan-500 via-blue-400 to-cyan-600 text-white font-bold rounded-xl shadow hover:from-blue-600 hover:to-cyan-500 transition-all duration-200 transform hover:scale-105 disabled:opacity-50"
+                className="px-6 py-3 bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-600 text-white font-extrabold rounded-2xl shadow-xl hover:from-yellow-600 hover:to-yellow-500 transition-all duration-200 transform hover:scale-105 disabled:opacity-50 font-serif"
                 onClick={handleGenerateKolam}
                 disabled={generating}
               >
                 {generating ? 'Generating…' : 'Generate Festival Kolam'}
               </button>
               {generatedKolam && (
-                <div className="mt-6 flex flex-col items-center gap-3">
-                  <img src={generatedKolam} alt="Generated Kolam" className="w-40 h-40 object-contain border-2 border-cyan-200 rounded-xl bg-cyan-50 shadow-lg" />
-                  <span className="text-sm font-semibold text-cyan-700">Your Festival Kolam</span>
-                  <div className="flex gap-3 mt-2">
+                <div className="mt-8 flex flex-col items-center gap-4">
+                  <Image src={generatedKolam} alt="Generated Kolam" width={176} height={176} className="w-44 h-44 object-contain border-4 border-yellow-400 rounded-2xl bg-yellow-50 shadow-xl" />
+                  <span className="text-base font-bold text-yellow-700 font-serif">Your Festival Kolam</span>
+                  <div className="flex gap-4 mt-2">
                     <button
-                      className="px-4 py-2 bg-blue-500 text-white rounded-xl shadow hover:bg-blue-600 font-semibold"
+                      className="px-5 py-2 bg-yellow-500 text-white rounded-2xl shadow-xl hover:bg-yellow-600 font-extrabold font-serif"
                       onClick={() => {
                         // Download image
                         const link = document.createElement('a');
@@ -146,7 +147,7 @@ export default function FestivalCalendar() {
                       Download
                     </button>
                     <button
-                      className="px-4 py-2 bg-cyan-500 text-white rounded-xl shadow hover:bg-cyan-600 font-semibold"
+                      className="px-5 py-2 bg-yellow-400 text-white rounded-2xl shadow-xl hover:bg-yellow-500 font-extrabold font-serif"
                       onClick={async () => {
                         // Prepare AR visualization (store in session and redirect)
                         sessionStorage.setItem('kolam_ar_image', generatedKolam);

@@ -4,16 +4,34 @@ import Link from "next/link";
 interface KolamCardProps {
   title: string;
   description: string;
-  buttonText: string;
+  buttonText: React.ReactNode;
   buttonHref?: string;
   list?: string[];
   icon?: React.ReactNode;
+  disabled?: boolean;
 }
 
-export function KolamCard({ title, description, buttonText, buttonHref, list, icon }: KolamCardProps) {
+export function KolamCard({ title, description, buttonText, buttonHref, list, icon, disabled }: KolamCardProps) {
   return (
-    <div className="card">
-      <div className="card__border"></div>
+    <div
+      className="card kolam-card-shine"
+      style={{
+        position: 'relative',
+        border: '8px solid transparent',
+        borderImage: 'url(/border.png) 16 round',
+        borderRadius: '32px',
+        background: 'linear-gradient(180deg, #1d1925 0%, #280c1a 100%)',
+        padding: '1.2rem 1rem 1rem 1rem',
+        minHeight: '180px',
+        overflow: 'hidden',
+        color: '#e0e0e0',
+        margin: '0.5rem 0',
+        WebkitMaskImage: 'radial-gradient(circle at 0 0, transparent 0, transparent 0.5px, white 20px), radial-gradient(circle at 100% 0, transparent 0, transparent 0.5px, white 20px), radial-gradient(circle at 0 100%, transparent 0, transparent 0.5px, white 20px), radial-gradient(circle at 100% 100%, transparent 0, transparent 0.5px, white 20px), linear-gradient(white, white)',
+        maskImage: 'radial-gradient(circle at 0 0, transparent 0, transparent 0.5px, white 20px), radial-gradient(circle at 100% 0, transparent 0, transparent 0.5px, white 20px), radial-gradient(circle at 0 100%, transparent 0, transparent 0.5px, white 20px), radial-gradient(circle at 100% 100%, transparent 0, transparent 0.5px, white 20px), linear-gradient(white, white)',
+        WebkitMaskComposite: 'destination-in',
+        maskComposite: 'intersect',
+      }}
+    >
       <div className="card_title__container flex items-center gap-2">
         {icon && <span>{icon}</span>}
         <span className="card_title font-bold text-base">{title}</span>
@@ -33,27 +51,53 @@ export function KolamCard({ title, description, buttonText, buttonHref, list, ic
           ))}
         </ul>
       )}
-      {buttonHref ? (
-        <a href={buttonHref} style={{ textDecoration: 'none' }}>
-          <button className="button mt-3 block text-center w-full" style={{ backgroundColor: 'var(--bg)' }}>
-            <div className="wrap">
-              <p>
-                <span>✧</span>
-                <span>✦</span>
-                {buttonText}
-              </p>
-            </div>
+      <style jsx>{`
+        .kolam-card-shine::after {
+          content: '';
+          position: absolute;
+          top: 0; left: 0; right: 0; bottom: 0;
+          pointer-events: none;
+          border-radius: 32px;
+          box-shadow: 0 0 0 4px gold, 0 0 16px 4px rgba(0, 123, 255, 0.5);
+          z-index: 2;
+        }
+        .kolam-card-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          background: linear-gradient(90deg, #3a0a2a 0%, #260617 100%);
+          color: #ffd700;
+          border: 2px solid #bfa335;
+          border-radius: 999px;
+          font-weight: 600;
+          font-size: 1rem;
+          padding: 0.5rem 1.5rem;
+          box-shadow: 0 2px 8px #000a;
+          transition: box-shadow 0.2s, background 0.2s;
+          width: 100%;
+          margin-top: 1rem;
+        }
+        .kolam-card-btn:hover {
+          background: linear-gradient(90deg, #4c113a 0%, #260617 100%);
+          box-shadow: 0 4px 16px #000a;
+        }
+        .kolam-card-btn .icon {
+          display: flex;
+          align-items: center;
+          font-size: 1.2em;
+          margin-right: 0.5em;
+        }
+      `}</style>
+      {buttonHref && !disabled ? (
+        <a href={buttonHref} style={{ textDecoration: 'none', width: '100%' }}>
+          <button className="kolam-card-btn">
+            {buttonText}
           </button>
         </a>
       ) : (
-        <button className="button mt-3 w-full" style={{ backgroundColor: 'var(--bg)' }}>
-          <div className="wrap">
-            <p>
-              <span>✧</span>
-              <span>✦</span>
-              {buttonText}
-            </p>
-          </div>
+        <button className="kolam-card-btn" disabled={disabled} style={disabled ? {background:'#eee',color:'#aaa',borderColor:'#ccc',cursor:'not-allowed',boxShadow:'none'} : {}}>
+          {buttonText}
         </button>
       )}
     </div>

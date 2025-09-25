@@ -298,51 +298,130 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
   }
 
   // Show loading or nothing while redirecting
-  if (!user) {
+  // Remove global background immediately if video background is shown
+  const showVideoBg = !user;
+  React.useEffect(() => {
+    if (showVideoBg) {
+      const original = document.body.style.background;
+      document.body.style.background = 'none';
+      return () => { document.body.style.background = original; };
+    }
+  }, [showVideoBg]);
+
+  if (showVideoBg) {
     return (
-      <main className="min-h-screen flex items-center justify-center font-display">
-        <div className="w-full max-w-md mx-auto p-6">
-          <div className="bg-gradient-to-br from-yellow-100 via-cyan-100 to-blue-100 border border-cyan-300 p-8 rounded-2xl shadow-xl text-center">
-            <h1 className="text-3xl font-bold font-serif text-cyan-700 drop-shadow mb-4">Redirecting…</h1>
-            <p className="text-base text-muted-foreground mb-2">Please wait while we redirect you to sign in.</p>
-            <div className="mt-4 flex justify-center">
-              <svg className="animate-spin h-8 w-8 text-cyan-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-              </svg>
+      <div style={{position: 'relative', minHeight: '100vh', width: '100%'}} className="font-display">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          src="/Bg.mp4"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            objectFit: 'cover',
+            zIndex: 0,
+            pointerEvents: 'none',
+          }}
+        />
+        <main className="min-h-screen flex items-center justify-center font-display" style={{position: 'relative', zIndex: 1}}>
+          <div className="w-full max-w-md mx-auto p-6">
+            <div
+              className="border-2 border-yellow-300/70 shadow-xl rounded-2xl text-center relative"
+              style={{
+                background: 'linear-gradient(135deg, #3a0a2a 0%, #bfa335 100%)',
+                boxShadow: '0 4px 32px #000a',
+                color: '#ffd700',
+                padding: '2rem',
+                overflow: 'hidden',
+              }}
+            >
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '-1.5rem',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  fontSize: '2.5rem',
+                  color: '#ffd700',
+                  filter: 'drop-shadow(0 0 6px #bfa335)',
+                  pointerEvents: 'none',
+                }}
+                aria-hidden="true"
+              >✦</span>
+              <h1 className="text-3xl sm:text-4xl font-bold font-serif mb-4 drop-shadow-gold" style={{color:'#ffd700', letterSpacing:'0.03em'}}>
+                Redirecting…
+              </h1>
+              <p className="text-base italic mb-2" style={{color:'#ffe6a7', fontFamily:'serif'}}>
+                Please wait while we guide you to sign in.<br/>
+                <span style={{color:'#ffb6c1'}}>Kolam Ai – Where tradition meets technology.</span>
+              </p>
+              <div className="mt-4 flex justify-center">
+                <svg className="animate-spin h-8 w-8" style={{color:'#ffd700'}} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+              </div>
             </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     );
   }
 
   return (
-  <div className="min-h-screen font-display">
-      <Navbar />
-      <main className="container py-10 flex flex-col items-center justify-center">
-        <h1 className="text-4xl sm:text-5xl font-bold font-serif text-cyan-700 drop-shadow tracking-tight leading-tight text-center">Kolam Recognition</h1>
-        <p className="mt-4 text-lg text-muted-foreground text-center">Upload a Kolam image. We&#39;ll detect dots, symmetry and classify the style.</p>
+    <div style={{position: 'relative', minHeight: '100vh', width: '100%'}} className="font-display">
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        src="/Bg.mp4"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          objectFit: 'cover',
+          zIndex: 0,
+          pointerEvents: 'none',
+        }}
+      />
+      <div style={{position: 'relative', zIndex: 1, width: '100%'}}>
+        <Navbar />
+        <main className="container py-10 flex flex-col items-center justify-center">
+          <h1 className="text-4xl sm:text-5xl font-extrabold font-serif text-yellow-700 drop-shadow-[0_2px_12px_rgba(255,215,0,0.7)] tracking-tight leading-tight text-center uppercase border-b-4 border-yellow-500 pb-2" style={{fontFamily: 'Georgia, serif', color: '#FFD700', letterSpacing: '0.12em', textShadow: '0 2px 12px rgba(255,215,0,0.7), 0 1px 0 #fff'}}>
+            Kolam Recognition 🪔
+          </h1>
+          <p className="mt-4 text-lg font-bold font-serif text-center" style={{color: '#FFD700', textShadow: '0 2px 8px rgba(255,215,0,0.7), 0 1px 0 #fff'}}>
+            Upload a Kolam image. We&#39;ll detect dots, symmetry and classify the style.<br className="hidden md:inline" />
+            <span className="text-yellow-700">Heritage, cultural, and traditional theme.</span>
+          </p>
 
-        <div className="mt-8 w-full flex flex-col lg:grid lg:grid-cols-2 gap-8 items-start justify-center">
-          {/* ...existing code... */}
-          <Card className="w-full max-w-md mx-auto sm:max-w-none sm:mx-0 bg-gradient-to-br from-cyan-50 via-white to-blue-50 shadow-xl rounded-2xl border-2 border-cyan-200 relative overflow-visible">
-            {/* Glowing border effect behind content */}
-            <span className="pointer-events-none absolute -inset-1 rounded-3xl -z-10 animate-glow bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-300 opacity-40 blur-lg"></span>
+          <div className="mt-8 w-full flex flex-col lg:grid lg:grid-cols-2 gap-8 items-start justify-center">
+            {/* ...existing code... */}
+          <Card className="w-full max-w-md mx-auto sm:max-w-none sm:mx-0 bg-gradient-to-br from-[#fffde7] via-[#ffe082] to-[#ffd700] shadow-2xl rounded-3xl border-4 border-yellow-500 relative overflow-visible font-serif">
+            {/* Kolam motif background */}
+            <div className="absolute inset-0 pointer-events-none opacity-10 bg-[url('/kolam-hero.jpg')] bg-repeat" style={{zIndex:0}} />
             {/* ...existing code... */}
             <CardHeader>
-              <CardTitle className="text-cyan-700 font-bold">Upload</CardTitle>
-              <CardDescription className="text-muted-foreground">PNG or JPG up to 5MB.</CardDescription>
+              <CardTitle className="text-yellow-700 font-extrabold font-serif text-2xl">Upload</CardTitle>
+              <CardDescription className="text-yellow-700 font-bold">PNG or JPG up to 5MB.</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4 w-full">
-                <Input type="file" accept="image/*" onChange={(e) => onFile(e.target.files?.[0] ?? null)} className="bg-white/80 border-cyan-200 rounded-xl" />
+                <Input type="file" accept="image/*" onChange={(e) => onFile(e.target.files?.[0] ?? null)} className="bg-yellow-50 border-yellow-400 rounded-xl font-serif text-yellow-900" />
                 <div className="flex flex-col sm:flex-row gap-2 w-full">
-                  <Button className="w-full sm:w-auto bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-600 text-white font-bold shadow-lg hover:from-blue-600 hover:to-cyan-500 transition-all duration-200 transform hover:scale-105 rounded-xl" onClick={analyze} disabled={!file || loading || !consentGiven}>{loading ? 'Analyzing…' : 'Analyze'}</Button>
-                  {file && <Button className="w-full sm:w-auto bg-white/80 text-cyan-700 border border-cyan-300 rounded-xl" variant="ghost" onClick={() => onFile(null)}>Reset</Button>}
+                  <Button className="w-full sm:w-auto bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-600 text-white font-extrabold shadow-xl hover:from-yellow-600 hover:to-yellow-500 transition-all duration-200 transform hover:scale-105 rounded-2xl font-serif" onClick={analyze} disabled={!file || loading || !consentGiven}>{loading ? 'Analyzing…' : 'Analyze'}</Button>
+                  {file && <Button className="w-full sm:w-auto bg-yellow-50 text-yellow-700 border border-yellow-400 rounded-xl font-serif" variant="ghost" onClick={() => onFile(null)}>Reset</Button>}
                   {file && (
                     <Button
-                      className="w-full sm:w-auto bg-gradient-to-r from-cyan-200 via-cyan-400 to-blue-400 text-cyan-900 border-2 border-cyan-300 shadow-md hover:from-cyan-300 hover:to-blue-500 font-bold rounded-xl transition-all duration-200"
+                      className="w-full sm:w-auto bg-gradient-to-r from-yellow-200 via-yellow-400 to-yellow-500 text-yellow-900 border-2 border-yellow-400 shadow-md hover:from-yellow-300 hover:to-yellow-600 font-bold rounded-xl transition-all duration-200 font-serif"
                       variant="outline"
                       onClick={async () => {
                         setOverlayUrl(null)
@@ -366,7 +445,7 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
                         {file && (datasetResult || geminiResult) && (
                           <Button
                             variant="secondary"
-                            className="w-full sm:w-auto relative font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-blue-600 text-white border-2 border-cyan-300 shadow-lg hover:from-blue-500 hover:to-cyan-500 transition-transform duration-200 rounded-xl"
+                            className="w-full sm:w-auto relative font-extrabold bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 text-white border-2 border-yellow-400 shadow-lg hover:from-yellow-500 hover:to-yellow-600 transition-transform duration-200 rounded-2xl font-serif"
                             onClick={async () => {
                               if (file) {
                                 // Convert file to base64 before storing
@@ -390,7 +469,7 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
                               {[...Array(8)].map((_, i) => (
                                 <span
                                   key={i}
-                                  className="absolute rounded-full bg-cyan-300 opacity-80"
+                                  className="absolute rounded-full bg-yellow-300 opacity-80"
                                   style={{
                                     width: '6px',
                                     height: '6px',
@@ -413,7 +492,7 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
                 </div>
                 <div className="flex items-start gap-3">
                   <input id="consent" type="checkbox" checked={consentGiven} onChange={(e) => setConsentGiven(e.target.checked)} className="mt-1 h-4 w-4" />
-                  <label htmlFor="consent" className="text-xs text-muted-foreground max-w-md">
+                  <label htmlFor="consent" className="text-xs text-yellow-700 max-w-md font-serif">
                     I consent to storing my uploaded images and Gemini analysis results to improve the dataset. See your <a href="/profile" className="underline">Profile settings</a> to change this preference.
                   </label>
                 </div>
@@ -461,80 +540,74 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
             </CardContent>
           </Card>
           {/* ...existing code... */}
-          <Card className="bg-card/60 backdrop-blur border border-cyan-200 shadow-xl rounded-2xl">
+          <Card className="bg-gradient-to-br from-[#fffde7] via-[#ffe082] to-[#ffd700] dark:bg-yellow-900 backdrop-blur border-4 border-yellow-500 shadow-2xl rounded-3xl relative overflow-hidden font-serif">
+            {/* Kolam motif background */}
+            <div className="absolute inset-0 pointer-events-none opacity-10 bg-[url('/kolam-hero.jpg')] bg-repeat" style={{zIndex:0}} />
             {/* ...existing code... */}
             <CardHeader>
-              <CardTitle className="text-cyan-700 font-bold">Results</CardTitle>
-              <CardDescription className="text-muted-foreground">Interactive insights</CardDescription>
+              <CardTitle className="text-yellow-700 font-extrabold font-serif text-2xl">Results</CardTitle>
+              <CardDescription className="text-yellow-700 font-bold">Interactive insights</CardDescription>
             </CardHeader>
             <CardContent>
   {(!datasetResult && !geminiResult) && <p className="text-sm text-muted-foreground">No results yet.</p>}
   {datasetResult && (
     
-  <div className="rounded-2xl border p-4 sm:p-6 bg-gradient-to-br from-white/3 to-primary/6 shadow-lg w-full max-w-full overflow-x-auto">
+  <div className="rounded-2xl border p-4 sm:p-6 bg-gradient-to-br from-yellow-50 via-yellow-100 to-yellow-200 shadow-lg w-full max-w-full overflow-x-auto font-serif" style={{color:'#2d1a00'}}>
   <div className="flex flex-col gap-6">
   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <div className="text-xs uppercase text-white mb-1 drop-shadow">Dataset Analysis · Model: Kolam Dataset</div>
+            <div className="text-xs uppercase mb-1" style={{color:'#e6b800', textShadow:'0 1px 8px #fff'}}>Dataset Analysis · Model: Kolam Dataset</div>
             <div className="flex items-center gap-3">
-              <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight text-white drop-shadow-lg">{datasetResult.kolam_type ?? 'Unknown'}</h2>
-              <span className="text-sm rounded-full px-2 py-1 drop-shadow font-semibold"
-                style={{
-                  background: 'linear-gradient(90deg, #f3e8ff 0%, #e0e7ff 100%)',
-                  color: '#7c3aed',
-                  boxShadow: '0 1px 8px 0 rgba(124,58,237,0.10)'
-                }}
-              >
-                {datasetResult.dl_classification ?? 'Unknown'}
-              </span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight" style={{color:'#e6b800', textShadow:'0 2px 12px #fff'}}>{datasetResult.kolam_type ?? 'Unknown'}</h2>
+              <span className="text-sm rounded-full px-2 py-1 font-semibold" style={{background:'linear-gradient(90deg,#fffde7,#ffe082)', color:'#e6b800', boxShadow:'0 1px 8px #fff'}}>{datasetResult.dl_classification ?? 'Unknown'}</span>
             </div>
           </div>
           <div className="hidden sm:flex items-center gap-4">
-            <div className="text-sm text-white font-semibold drop-shadow">Type Confidence</div>
-            <div className="text-lg font-bold text-purple-500 drop-shadow-lg">{typeof datasetResult.type_confidence === 'number' ? `${(datasetResult.type_confidence * 100).toFixed(1)}%` : 'N/A'}</div>
-            <div className="text-sm text-white font-semibold drop-shadow">DL Confidence</div>
-            <div className="text-lg font-bold text-purple-500 drop-shadow-lg">{typeof datasetResult.dl_confidence === 'number' ? `${(datasetResult.dl_confidence * 100).toFixed(1)}%` : 'N/A'}</div>
+            <div className="text-sm font-semibold" style={{color:'#e6b800'}}>Type Confidence</div>
+            <div className="text-lg font-bold" style={{color:'#2d1a00', textShadow:'0 1px 8px #fff'}}>{typeof datasetResult.type_confidence === 'number' ? `${(datasetResult.type_confidence * 100).toFixed(1)}%` : 'N/A'}</div>
+            <div className="text-sm font-semibold" style={{color:'#e6b800'}}>DL Confidence</div>
+            <div className="text-lg font-bold" style={{color:'#2d1a00', textShadow:'0 1px 8px #fff'}}>{typeof datasetResult.dl_confidence === 'number' ? `${(datasetResult.dl_confidence * 100).toFixed(1)}%` : 'N/A'}</div>
           </div>
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2 mb-1">
-              <span className="inline-block w-6 h-6 rounded-full bg-cyan-200 text-cyan-700 grid place-items-center font-bold">●</span>
-              <span className="text-sm font-semibold text-cyan-700">Dot Grid</span>
+              <span className="inline-block w-6 h-6 rounded-full bg-yellow-200 text-yellow-700 grid place-items-center font-bold">●</span>
+              <span className="text-sm font-semibold" style={{color:'#e6b800'}}>Dot Grid</span>
             </div>
             {datasetResult.dot_grid ? (
               <div className="flex flex-wrap gap-2 text-sm">
-                <span className="rounded-full bg-cyan-200 px-2 py-0.5 text-cyan-900">Rows: {datasetResult.dot_grid.rows}</span>
-                <span className="rounded-full bg-cyan-200 px-2 py-0.5 text-cyan-900">Cols: {datasetResult.dot_grid.cols}</span>
-                <span className="rounded-full bg-cyan-200 px-2 py-0.5 text-cyan-900">Spacing X: {datasetResult.dot_grid.spacing_x}</span>
-                <span className="rounded-full bg-cyan-200 px-2 py-0.5 text-cyan-900">Spacing Y: {datasetResult.dot_grid.spacing_y}</span>
-                <span className="rounded-full bg-cyan-200 px-2 py-0.5 text-cyan-900">Regularity: {datasetResult.dot_grid.regularity_score?.toFixed(2)}</span>
-                <span className="rounded-full bg-cyan-200 px-2 py-0.5 text-cyan-900">Dots: {datasetResult.dot_grid.num_dots}</span>
+                <span className="rounded-full px-2 py-0.5" style={{background:'#fffde7', color:'#2d1a00'}}>Rows: {datasetResult.dot_grid.rows}</span>
+                <span className="rounded-full px-2 py-0.5" style={{background:'#fffde7', color:'#bfa335'}}>Cols: {datasetResult.dot_grid.cols}</span>
+                <span className="rounded-full px-2 py-0.5" style={{background:'#fffde7', color:'#bfa335'}}>Spacing X: {datasetResult.dot_grid.spacing_x}</span>
+                <span className="rounded-full px-2 py-0.5" style={{background:'#fffde7', color:'#bfa335'}}>Spacing Y: {datasetResult.dot_grid.spacing_y}</span>
+                <span className="rounded-full px-2 py-0.5" style={{background:'#fffde7', color:'#bfa335'}}>Regularity: {datasetResult.dot_grid.regularity_score?.toFixed(2)}</span>
+                <span className="rounded-full px-2 py-0.5" style={{background:'#fffde7', color:'#bfa335'}}>Dots: {datasetResult.dot_grid.num_dots}</span>
               </div>
             ) : (
-              <span className="text-xs text-muted-foreground">No dot grid detected</span>
+              <span className="text-xs" style={{color:'#e6b800'}}>No dot grid detected</span>
             )}
             {datasetResult.dot_grid?.sample_dots && (
-              <div className="mt-2 text-xs text-muted-foreground">Sample dots: {datasetResult.dot_grid.sample_dots.map((d: number[], i: number) => `(${d[0]},${d[1]})`).join(', ')}</div>
+              <div className="mt-2 text-xs" style={{color:'#bfa335'}}>Sample dots: {datasetResult.dot_grid.sample_dots.map((d: number[], i: number) => `(${d[0]},${d[1]})`).join(', ')}</div>
             )}
           </div>
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2 mb-1">
-              <span className="inline-block w-6 h-6 rounded-full bg-blue-200 text-blue-700 grid place-items-center font-bold">♻</span>
-              <span className="text-sm font-semibold text-blue-700">Symmetry</span>
+              <span className="inline-block w-6 h-6 rounded-full bg-yellow-200 text-yellow-700 grid place-items-center font-bold">♻</span>
+              <span className="text-sm font-semibold" style={{color:'#e6b800'}}>Symmetry</span>
             </div>
             {datasetResult.symmetry ? (
               <div className="flex flex-wrap gap-2 text-sm">
-                <span className="rounded-full bg-blue-200 px-2 py-0.5 text-blue-900">Horizontal: {datasetResult.symmetry.horizontal?.toFixed(2)}</span>
-                <span className="rounded-full bg-blue-200 px-2 py-0.5 text-blue-900">Vertical: {datasetResult.symmetry.vertical?.toFixed(2)}</span>
-                <span className="rounded-full bg-blue-200 px-2 py-0.5 text-blue-900">Diagonal: {datasetResult.symmetry.diagonal?.toFixed(2)}</span>
-                <span className="rounded-full bg-blue-200 px-2 py-0.5 text-blue-900">Rotational 90°: {datasetResult.symmetry.rotational_90?.toFixed(2)}</span>
-                <span className="rounded-full bg-blue-200 px-2 py-0.5 text-blue-900">Rotational 180°: {datasetResult.symmetry.rotational_180?.toFixed(2)}</span>
-                <span className="rounded-full bg-blue-200 px-2 py-0.5 text-blue-900">Primary: {datasetResult.symmetry.primary_symmetry}</span>
-                <span className="rounded-full bg-blue-200 px-2 py-0.5 text-blue-900">Is Symmetric: {datasetResult.symmetry.is_symmetric ? 'Yes' : 'No'}</span>
+                <span className="rounded-full px-2 py-0.5" style={{background:'#fffde7', color:'#2d1a00'}}>Horizontal: {datasetResult.symmetry.horizontal?.toFixed(2)}</span>
+                <span className="rounded-full px-2 py-0.5" style={{background:'#fffde7', color:'#bfa335'}}>Vertical: {datasetResult.symmetry.vertical?.toFixed(2)}</span>
+                <span className="rounded-full px-2 py-0.5" style={{background:'#fffde7', color:'#bfa335'}}>Diagonal: {datasetResult.symmetry.diagonal?.toFixed(2)}</span>
+                <span className="rounded-full px-2 py-0.5" style={{background:'#fffde7', color:'#bfa335'}}>Rotational 90°: {datasetResult.symmetry.rotational_90?.toFixed(2)}</span>
+                <span className="rounded-full px-2 py-0.5" style={{background:'#fffde7', color:'#bfa335'}}>Rotational 180°: {datasetResult.symmetry.rotational_180?.toFixed(2)}</span>
+                <span className="rounded-full px-2 py-0.5" style={{background:'#fffde7', color:'#bfa335'}}>Primary: {datasetResult.symmetry.primary_symmetry}</span>
+                <span className="rounded-full px-2 py-0.5" style={{background:'#fffde7', color:'#bfa335'}}>Is Symmetric: {datasetResult.symmetry.is_symmetric ? 'Yes' : 'No'}</span>
               </div>
             ) : (
-              <span className="text-xs text-muted-foreground">No symmetry detected</span>
+              <span className="text-xs" style={{color:'#e6b800'}}>No symmetry detected</span>
             )}
           </div>
         </div>
@@ -542,39 +615,39 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2 mb-1">
               <span className="inline-block w-6 h-6 rounded-full bg-yellow-200 text-yellow-700 grid place-items-center font-bold">🔁</span>
-              <span className="text-sm font-semibold text-yellow-700">Repetition Patterns</span>
+              <span className="text-sm font-semibold" style={{color:'#e6b800'}}>Repetition Patterns</span>
             </div>
             {datasetResult.repetition_patterns ? (
               <div className="flex flex-wrap gap-2 text-sm">
-                <span className="rounded-full bg-yellow-200 px-2 py-0.5 text-yellow-900">Has Repetition: {datasetResult.repetition_patterns.has_repetition ? 'Yes' : 'No'}</span>
-                <span className="rounded-full bg-yellow-200 px-2 py-0.5 text-yellow-900">Repetition Score: {datasetResult.repetition_patterns.repetition_score?.toFixed(2)}</span>
-                <span className="rounded-full bg-yellow-200 px-2 py-0.5 text-yellow-900">Tile Size: {datasetResult.repetition_patterns.tile_size?.join(' x ')}</span>
+                <span className="rounded-full px-2 py-0.5" style={{background:'#fffde7', color:'#2d1a00'}}>Has Repetition: {datasetResult.repetition_patterns.has_repetition ? 'Yes' : 'No'}</span>
+                <span className="rounded-full px-2 py-0.5" style={{background:'#fffde7', color:'#bfa335'}}>Repetition Score: {datasetResult.repetition_patterns.repetition_score?.toFixed(2)}</span>
+                <span className="rounded-full px-2 py-0.5" style={{background:'#fffde7', color:'#bfa335'}}>Tile Size: {datasetResult.repetition_patterns.tile_size?.join(' x ')}</span>
               </div>
             ) : (
-              <span className="text-xs text-muted-foreground">No repetition detected</span>
+              <span className="text-xs" style={{color:'#e6b800'}}>No repetition detected</span>
             )}
           </div>
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2 mb-1">
-              <span className="inline-block w-6 h-6 rounded-full bg-green-200 text-green-700 grid place-items-center font-bold">🧮</span>
-              <span className="text-sm font-semibold text-green-700">Characteristics</span>
+              <span className="inline-block w-6 h-6 rounded-full bg-yellow-200 text-yellow-700 grid place-items-center font-bold">🧮</span>
+              <span className="text-sm font-semibold" style={{color:'#e6b800'}}>Characteristics</span>
             </div>
             {datasetResult.characteristics ? (
               <div className="flex flex-wrap gap-2 text-sm">
-                <span className="rounded-full bg-green-200 px-2 py-0.5 text-green-900">Edge Pixels: {datasetResult.characteristics.edge_pixels}</span>
-                <span className="rounded-full bg-green-200 px-2 py-0.5 text-green-900">Edge Density: {datasetResult.characteristics.edge_density?.toFixed(4)}</span>
-                <span className="rounded-full bg-green-200 px-2 py-0.5 text-green-900">Contours: {datasetResult.characteristics.num_contours}</span>
-                <span className="rounded-full bg-green-200 px-2 py-0.5 text-green-900">Complexity: {datasetResult.characteristics.complexity}</span>
+                <span className="rounded-full px-2 py-0.5" style={{background:'#fffde7', color:'#2d1a00'}}>Edge Pixels: {datasetResult.characteristics.edge_pixels}</span>
+                <span className="rounded-full px-2 py-0.5" style={{background:'#fffde7', color:'#bfa335'}}>Edge Density: {datasetResult.characteristics.edge_density?.toFixed(4)}</span>
+                <span className="rounded-full px-2 py-0.5" style={{background:'#fffde7', color:'#bfa335'}}>Contours: {datasetResult.characteristics.num_contours}</span>
+                <span className="rounded-full px-2 py-0.5" style={{background:'#fffde7', color:'#bfa335'}}>Complexity: {datasetResult.characteristics.complexity}</span>
               </div>
             ) : (
-              <span className="text-xs text-muted-foreground">No characteristics detected</span>
+              <span className="text-xs" style={{color:'#e6b800'}}>No characteristics detected</span>
             )}
           </div>
         </div>
         <div className="mt-4 flex gap-2">
           <Button
             className="button"
-            style={{ width: 'auto', minWidth: 220, background: 'linear-gradient(90deg, #06b6d4 0%, #3b82f6 100%)', boxShadow: '0 3rem 3rem rgba(6,182,212,0.15), 0 1rem 1rem -0.6rem rgba(59,130,246,0.18)', color: '#111' }}
+            style={{ width: 'auto', minWidth: 220, background: 'linear-gradient(90deg, #bfa335 0%, #ffd700 100%)', boxShadow: '0 3rem 3rem rgba(191,163,53,0.15), 0 1rem 1rem -0.6rem rgba(255,215,0,0.18)', color: '#3a2a0a', fontWeight:600 }}
             onClick={async () => {
               if (!file) return;
               setReanalyzing(true);
@@ -605,9 +678,9 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
             disabled={reanalyzing}
           >
             <div className="wrap">
-              <p style={{ color: '#111', fontWeight: 600 }}>
-                <span>✧</span>
-                <span>✦</span>
+              <p style={{color:'#2d1a00', textShadow:'0 1px 8px #fff', fontWeight:700}}>
+                <span style={{color:'#bfa335'}}>✧</span>
+                <span style={{color:'#bfa335'}}>✦</span>
                 {reanalyzing ? 'Re-analyzing…' : 'Re-analyze with Gemini'}
               </p>
             </div>
@@ -617,10 +690,10 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
     </div>
               )}
         {geminiResult && (
-          <div className="rounded-2xl border p-4 sm:p-6 bg-gradient-to-br from-white/3 to-primary/6 shadow-lg w-full max-w-full overflow-x-auto">
+          <div className="rounded-2xl border p-4 sm:p-6 bg-gradient-to-br from-yellow-50 via-yellow-100 to-yellow-200 shadow-lg w-full max-w-full overflow-x-auto font-serif" style={{color:'#3a2a0a'}}>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <div className="text-xs uppercase text-muted-foreground mb-1">Gemini Analysis · Model: Gemini</div>
+                <div className="text-xs uppercase mb-1" style={{color:'#bfa335', textShadow:'0 1px 8px #fff'}}>Gemini Analysis · Model: Gemini</div>
                 {(() => {
                   // Only promote reportedName when it is meaningful — not a generic "other" placeholder.
                   const reported = String(geminiResult.reportedName ?? '').trim()
@@ -631,36 +704,34 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
                   if (reported && !reportedIsOther) {
                     return (
                       <div className="flex items-center gap-3">
-                        <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight">{reported}</h2>
+                        <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight" style={{color:'#bfa335', textShadow:'0 2px 12px #fff'}}> {reported} </h2>
                         {!canonicalIsOther && canonical && (
-                          <span className="text-sm rounded-full bg-secondary/20 px-2 py-1 text-muted-foreground">{canonical}</span>
+                          <span className="text-sm rounded-full px-2 py-1" style={{background:'linear-gradient(90deg,#fffde7,#ffe082)', color:'#bfa335', boxShadow:'0 1px 8px #fff'}}> {canonical} </span>
                         )}
                       </div>
                     )
                   }
 
                   if (canonical && !canonicalIsOther) {
-                    return <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight">{canonical}</h2>
+                    return <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight" style={{color:'#bfa335', textShadow:'0 2px 12px #fff'}}>{canonical}</h2>
                   }
 
-                  return <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight">Unknown</h2>
+                  return <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight" style={{color:'#bfa335', textShadow:'0 2px 12px #fff'}}>Unknown</h2>
                 })()}
               </div>
               <div className="hidden sm:flex items-center gap-4">
-                <div className="text-sm text-muted-foreground">Symmetry confidence</div>
-                <div className="text-lg font-bold text-primary">{typeof geminiResult.symmetryConfidence === 'number' ? `${(Number(geminiResult.symmetryConfidence) * 100).toFixed(0)}%` : 'N/A'}</div>
+                <div className="text-sm" style={{color:'#bfa335'}}>Symmetry confidence</div>
+                <div className="text-lg font-bold" style={{color:'#3a2a0a'}}>{typeof geminiResult.symmetryConfidence === 'number' ? `${(Number(geminiResult.symmetryConfidence) * 100).toFixed(0)}%` : 'N/A'}</div>
               </div>
             </div>
 
             <div className="mt-4 grid gap-4 sm:grid-cols-3">
               <div className="flex flex-col items-center gap-3 sm:col-span-1">
-                <div className="rounded-lg overflow-hidden w-40 h-40 flex items-center justify-center bg-muted">
+                <div className="rounded-lg overflow-hidden w-40 h-40 flex items-center justify-center bg-yellow-100">
                   {preview ? (
-                    // Use client preview if available
-                    // eslint-disable-next-line @next/next/no-img-element
-<Image src={preview || '/default-kolam.png'} alt="Kolam preview" width={600} height={400} className="w-full object-contain rounded" />
+                    <Image src={preview || '/default-kolam.png'} alt="Kolam preview" width={600} height={400} className="w-full object-contain rounded" />
                   ) : (
-                    <div className="text-xs text-muted-foreground px-3">No preview</div>
+                    <div className="text-xs px-3" style={{color:'#bfa335'}}>No preview</div>
                   )}
                 </div>
                 {/* mobile-only symmetry moved below Principle for better layout */}
@@ -673,8 +744,8 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
                   const value = showReported ? reported : (canonical || 'Unknown')
                   return (
                     <div className="text-center">
-                      <div className="text-xs text-muted-foreground">{label}</div>
-                      <div className="text-sm font-medium">{value}</div>
+                      <div className="text-xs" style={{color:'#bfa335'}}>{label}</div>
+                      <div className="text-sm font-medium" style={{color:'#3a2a0a'}}>{value}</div>
                     </div>
                   )
                 })()}
@@ -682,61 +753,61 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
 
                 <div className="sm:col-span-2 grid gap-3">
                 <div className="flex flex-col gap-3">
-                  <div className="text-sm text-muted-foreground">Principle</div>
-                  <div className="text-base font-semibold">{geminiResult.principle ?? '—'}</div>
+                  <div className="text-sm" style={{color:'#bfa335'}}>Principle</div>
+                  <div className="text-base font-semibold" style={{color:'#3a2a0a'}}>{geminiResult.principle ?? '—'}</div>
                 </div>
                 {/* Mobile-only symmetry confidence: appears below Principle on small screens */}
                 <div className="sm:hidden mt-2 text-sm">
-                  <div className="text-xs text-muted-foreground">Symmetry confidence</div>
-                  <div className="text-sm font-bold text-primary">{typeof geminiResult.symmetryConfidence === 'number' ? `${(Number(geminiResult.symmetryConfidence) * 100).toFixed(0)}%` : 'N/A'}</div>
+                  <div className="text-xs" style={{color:'#bfa335'}}>Symmetry confidence</div>
+                  <div className="text-sm font-bold" style={{color:'#3a2a0a'}}>{typeof geminiResult.symmetryConfidence === 'number' ? `${(Number(geminiResult.symmetryConfidence) * 100).toFixed(0)}%` : 'N/A'}</div>
                 </div>
 
                 <div>
-                  <div className="text-sm text-muted-foreground">Symmetry</div>
+                  <div className="text-sm" style={{color:'#bfa335'}}>Symmetry</div>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {(geminiResult.symmetry || []).length === 0 ? (
-                      <span className="text-xs text-muted-foreground">None detected</span>
+                      <span className="text-xs" style={{color:'#bfa335'}}>None detected</span>
                     ) : (
                       (geminiResult.symmetry || []).map((s: string, i: number) => (
-                        <span key={i} className="inline-flex items-center text-xs font-medium bg-accent/10 text-accent rounded-full px-2 py-1">{s}</span>
+                        <span key={i} className="inline-flex items-center text-xs font-medium rounded-full px-2 py-1" style={{background:'linear-gradient(90deg,#fffde7,#ffe082)', color:'#bfa335', boxShadow:'0 1px 8px #fff'}}>{s}</span>
                       ))
                     )}
                   </div>
                 </div>
 
                 <div>
-                  <div className="text-sm text-muted-foreground">Spiritual / Context</div>
-                  <div className="mt-1 text-sm">{geminiResult.spiritual ?? 'Not available'}</div>
+                  <div className="text-sm" style={{color:'#bfa335'}}>Spiritual / Context</div>
+                  <div className="mt-1 text-sm" style={{color:'#3a2a0a'}}>{geminiResult.spiritual ?? 'Not available'}</div>
                   {geminiResult.spiritualAssessment && (
-                    <div className="mt-2 text-xs text-muted-foreground grid grid-cols-2 gap-2">
-                      <div className="p-2 rounded bg-muted/10"><div className="font-medium">Home</div><div>{geminiResult.spiritualAssessment.home}</div></div>
-                      <div className="p-2 rounded bg-muted/10"><div className="font-medium">Shop</div><div>{geminiResult.spiritualAssessment.shop}</div></div>
+                    <div className="mt-2 text-xs grid grid-cols-2 gap-2">
+                      <div className="p-2 rounded" style={{background:'#fffde7', color:'#bfa335'}}><div className="font-medium">Home</div><div>{geminiResult.spiritualAssessment.home}</div></div>
+                      <div className="p-2 rounded" style={{background:'#fffde7', color:'#bfa335'}}><div className="font-medium">Shop</div><div>{geminiResult.spiritualAssessment.shop}</div></div>
                     </div>
                   )}
                 </div>
 
                 <div>
-                  <div className="text-sm text-muted-foreground">Explanation</div>
-                  <div className="mt-1 text-sm leading-relaxed text-foreground/90">{geminiResult.explanation ?? '—'}</div>
+                  <div className="text-sm" style={{color:'#bfa335'}}>Explanation</div>
+                  <div className="mt-1 text-sm leading-relaxed" style={{color:'#3a2a0a'}}>{geminiResult.explanation ?? '—'}</div>
                 </div>
               </div>
             </div>
 
             <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div className="text-xs text-muted-foreground">Comparison: dataset vs Gemini</div>
+              <div className="text-xs" style={{color:'#bfa335'}}>Comparison: dataset vs Gemini</div>
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                <div className="px-3 py-1 rounded bg-muted/10 text-xs">
+                <div className="px-3 py-1 rounded text-xs" style={{background:'#fffde7', color:'#bfa335'}}>
                   <div className="font-medium">Dataset</div>
-                  <div className="text-muted-foreground">{datasetResult?.kolam_type ?? '—'}</div>
+                  <div>{datasetResult?.kolam_type ?? '—'}</div>
                 </div>
-                <div className="px-3 py-1 rounded bg-muted/10 text-xs">
+                <div className="px-3 py-1 rounded text-xs" style={{background:'#fffde7', color:'#bfa335'}}>
                   <div className="font-medium">Gemini</div>
-                  <div className="text-muted-foreground">{geminiResult.kolamTypeNormalized ?? geminiResult.kolamType ?? '—'}</div>
+                  <div>{geminiResult.kolamTypeNormalized ?? geminiResult.kolamType ?? '—'}</div>
                 </div>
                 {/* Always show Dataset reanalysis button when geminiResult is present. */}
                 <Button
-                  className="button"
-                  style={{ width: 'auto', minWidth: 220, background: 'linear-gradient(90deg, #06b6d4 0%, #3b82f6 100%)', boxShadow: '0 3rem 3rem rgba(6,182,212,0.15), 0 1rem 1rem -0.6rem rgba(59,130,246,0.18)', color: '#111' }}
+                  className="button whitespace-normal"
+                  style={{ width: 'auto', minWidth: 280, paddingLeft: '0rem', paddingRight: '0rem', background: 'linear-gradient(90deg, #bfa335 0%, #ffd700 100%)', boxShadow: '0 3rem 3rem rgba(191,163,53,0.15), 0 1rem 1rem -0.6rem rgba(255,215,0,0.18)', color: '#3a2a0a', fontWeight:600 }}
                   onClick={async () => {
                     if (!file) return;
                     setReanalyzing(true);
@@ -766,9 +837,9 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
                   disabled={reanalyzing}
                 >
                   <div className="wrap">
-                    <p style={{ color: '#111', fontWeight: 600 }}>
-                      <span>✧</span>
-                      <span>✦</span>
+                    <p style={{color:'#2d1a00', textShadow:'0 1px 8px #fff', fontWeight:700}}>
+                      <span style={{color:'#bfa335'}}>✧</span>
+                      <span style={{color:'#bfa335'}}>✦</span>
                       {reanalyzing ? 'Re-analyzing…' : 'Re-analyze with Dataset'}
                     </p>
                   </div>
@@ -781,83 +852,70 @@ const [showKarmaModal, setShowKarmaModal] = React.useState(false);
           </Card>
         </div>
         {/* CommunityPostModal integration */}
-<CommunityPostModal
-  image={postImage ?? ''}
-  details={postDetails ?? ''}
-  open={showPostModal}
-  onClose={() => setShowPostModal(false)}
-  onPost={async (description) => {
-    try {
-      const user = await supabase.auth.getUser();
-      const userId = user.data?.user?.id;
-      if (!userId) throw new Error('User not logged in');
+        <CommunityPostModal
+          image={postImage ?? ''}
+          details={postDetails ?? ''}
+          open={showPostModal}
+          onClose={() => setShowPostModal(false)}
+          onPost={async (description) => {
+            try {
+              const user = await supabase.auth.getUser();
+              const userId = user.data?.user?.id;
+              if (!userId) throw new Error('User not logged in');
 
-      // Convert file to base64 before posting
-      let imageBase64 = '';
-      if (file) {
-        imageBase64 = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            resolve(reader.result as string);
-          };
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-      } else if (postImage) {
-        imageBase64 = postImage;
-      }
+              // Convert file to base64 before posting
+              let imageBase64 = '';
+              if (file) {
+                imageBase64 = await new Promise((resolve, reject) => {
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    resolve(reader.result as string);
+                  };
+                  reader.onerror = reject;
+                  reader.readAsDataURL(file);
+                });
+              } else if (postImage) {
+                imageBase64 = postImage;
+              }
 
-      const res = await fetch('/api/community-post', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: imageBase64, description, userId })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to post');
+              const res = await fetch('/api/community-post', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: imageBase64, description, userId })
+              });
+              const data = await res.json();
+              if (!res.ok) throw new Error(data.error || 'Failed to post');
 
-      setTimeout(() => {
-        setKarmaPoints(data.karma ?? null);
-        setShowKarmaModal(true);
-      }, 500);
-    } catch (e) {
-      const errMsg = (e instanceof Error) ? e.message : 'Failed to post';
-      alert(errMsg);
-    }
-    setShowPostModal(false);
-  }}
-/>{showKarmaModal && (
-  <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
-    <div className="bg-white rounded-xl shadow-xl p-8 w-full max-w-md flex flex-col items-center border relative">
-      <ReactConfetti width={400} height={200} numberOfPieces={100} recycle={false} />
-      <div className="animate-spin-slow mb-4">
-        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="32" cy="32" r="30" fill="#FFD700" stroke="#F7B500" strokeWidth="4" />
-          <text x="32" y="38" textAnchor="middle" fontSize="24" fontWeight="bold" fill="#fff">10</text>
-        </svg>
-      </div>
-      <h2 className="text-xl font-bold mb-2 text-yellow-700">You earned 10 Kolam Karma!</h2>
-      <p className="mb-2 text-gray-700">Total Kolam Karma: <span className="font-bold text-yellow-700">{karmaPoints ?? '...'}</span></p>
-      <Button onClick={() => setShowKarmaModal(false)} className="mt-2 bg-yellow-500 text-white">Awesome!</Button>
-    </div>
-  </div>
-)}{showKarmaModal && (
-  <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
-    <div className="bg-white rounded-xl shadow-xl p-8 w-full max-w-md flex flex-col items-center border relative">
-      <ReactConfetti width={400} height={200} numberOfPieces={100} recycle={false} />
-      <div className="animate-spin-slow mb-4">
-        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="32" cy="32" r="30" fill="#FFD700" stroke="#F7B500" strokeWidth="4" />
-          <text x="32" y="38" textAnchor="middle" fontSize="24" fontWeight="bold" fill="#fff">{karmaPoints ?? '...'}</text>
-        </svg>
-      </div>
-      <h2 className="text-xl font-bold mb-2 text-yellow-700">You earned {karmaPoints ?? 0} Kolam Karma!</h2>
-      <p className="mb-2 text-gray-700">Total Kolam Karma: <span className="font-bold text-yellow-700">{karmaPoints ?? '...'}</span></p>
-      <Button onClick={() => setShowKarmaModal(false)} className="mt-2 bg-yellow-500 text-white">Awesome!</Button>
-    </div>
-  </div>
-)}
+              setTimeout(() => {
+                setKarmaPoints(data.karma ?? null);
+                setShowKarmaModal(true);
+              }, 500);
+            } catch (e) {
+              const errMsg = (e instanceof Error) ? e.message : 'Failed to post';
+              alert(errMsg);
+            }
+            setShowPostModal(false);
+          }}
+        />
+        {showKarmaModal && (
+          <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
+            <div className="bg-white rounded-xl shadow-xl p-8 w-full max-w-md flex flex-col items-center border relative">
+              <ReactConfetti width={400} height={200} numberOfPieces={100} recycle={false} />
+              <div className="animate-spin-slow mb-4">
+                <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="32" cy="32" r="30" fill="#FFD700" stroke="#F7B500" strokeWidth="4" />
+                  <text x="32" y="38" textAnchor="middle" fontSize="24" fontWeight="bold" fill="#fff">{karmaPoints ?? '...'}</text>
+                </svg>
+              </div>
+              <h2 className="text-xl font-bold mb-2 text-yellow-700">You earned {karmaPoints ?? 0} Kolam Karma!</h2>
+              <p className="mb-2 text-gray-700">Total Kolam Karma: <span className="font-bold text-yellow-700">{karmaPoints ?? '...'}</span></p>
+              <Button onClick={() => setShowKarmaModal(false)} className="mt-2 bg-yellow-500 text-white">Awesome!</Button>
+            </div>
+          </div>
+        )}
+        {/* Footer is now handled globally in layout.tsx */}
       </main>
-  {/* Footer is now handled globally in layout.tsx */}
+      </div>
     </div>
   )
 }

@@ -13,6 +13,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning className="dark">
       <body className="min-h-screen flex flex-col">
+        {/* Global video background */}
+        <video
+          id="global-video-bg"
+          autoPlay
+          loop
+          muted
+          playsInline
+          src="/Bg.mp4"
+        />
         <AuthProvider>
           <div className="flex-1 flex flex-col">
             {children}

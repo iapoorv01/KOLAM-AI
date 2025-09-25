@@ -40,49 +40,66 @@ export default function LeaderboardPage() {
   return (
     <div>
       <Navbar />
-      <main className="container py-10">
-        <h1 className="text-3xl md:text-4xl font-extrabold mb-6 md:mb-8 text-center text-white drop-shadow-lg tracking-wide">Kolam Leaderboard</h1>
-        <div className="rounded-2xl border border-blue-400/40 bg-card p-4 md:p-8 shadow-2xl">
-          {leaderboard.length === 0 && <div className="text-blue-200 text-lg">No leaderboard data.</div>}
+      <main className="container py-10 relative">
+  {/* Heritage background pattern (optional, can remove if needed) */}
+  {/* <div className="absolute inset-0 -z-10 bg-[url('/kolam.png')] bg-repeat opacity-20 pointer-events-none" /> */}
+        <h1
+          className="text-3xl sm:text-4xl md:text-6xl font-extrabold mb-8 text-center tracking-widest uppercase max-w-full break-words mx-auto"
+          style={{
+            background: 'linear-gradient(90deg, #FFD700 0%, #FF9800 40%, #fff 80%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            textShadow: '0 2px 12px #FFD700, 0 0 32px #FF9800, 0 0 2px #fff',
+            fontFamily: 'Georgia, serif',
+            letterSpacing: '0.15em'
+          }}
+        >
+          Kolam Leaderboard
+        </h1>
+  <div className="rounded-3xl border-4 border-yellow-700 bg-gradient-to-br from-[#fff8e1] to-[#ffe4b5] p-3 sm:p-6 md:p-10 shadow-2xl relative overflow-hidden w-full max-w-full">
+          {/* Kolam motif background */}
+          <div className="absolute inset-0 pointer-events-none opacity-15 bg-[url('/kolam-hero.jpg')] bg-repeat" style={{zIndex:0}} />
+          {leaderboard.length === 0 && <div className="text-yellow-900 text-lg font-semibold">No leaderboard data.</div>}
           {/* Top 3 users row */}
           {leaderboard.length > 0 && (
-            <div className="flex flex-col md:flex-row justify-center items-end gap-6 md:gap-8 mb-8 md:mb-10">
+            <div className="flex flex-col md:flex-row justify-center items-end gap-4 md:gap-8 mb-10 w-full">
               {topOrder.map((pos, i) => {
                 const user = leaderboard[pos];
                 if (!user) return null;
                 const rankColors = [
-                  'from-yellow-300 to-yellow-500',
-                  'from-gray-300 to-gray-500',
-                  'from-orange-300 to-orange-500'
+                  'from-[#FFD700] to-[#FFB300]', // Gold
+                  'from-[#C0C0C0] to-[#A9A9A9]', // Silver
+                  'from-[#CD7F32] to-[#B87333]'  // Bronze
                 ];
+                // Simple rank icon for top 1, number for others
                 const icon = pos === 0 ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="text-yellow-400 drop-shadow"><path d="M12 17.75L18.2 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.44 4.73L5.8 21z"/></svg>
+                  <span className="text-3xl font-bold text-yellow-700">★</span>
                 ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="text-yellow-300"><circle cx="12" cy="12" r="10"/><text x="12" y="16" textAnchor="middle" fontSize="12" fill="currentColor">{pos+1}</text></svg>
+                  <span className="text-lg font-bold text-yellow-700">{pos+1}</span>
                 );
-                // Top 1 gets bigger avatar
-                const avatarSize = pos === 0 ? 96 : 72;
+                const avatarSize = pos === 0 ? 104 : 80;
                 return (
-                  <div key={user.id} className={`flex flex-col items-center ${pos === 0 ? 'scale-110 z-10' : 'scale-95'} transition-all duration-300 w-full md:w-auto`}>
+                  <div key={user.id} className={`flex flex-col items-center ${pos === 0 ? 'scale-110 z-10' : 'scale-95'} transition-all duration-300 w-full md:w-auto break-words`}>
                     <div className={`relative mb-2`} style={{ width: avatarSize, height: avatarSize }}>
-                      <div className={`w-full h-full rounded-full border-4 border-yellow-400 shadow-xl bg-gradient-to-br ${rankColors[i]} flex items-center justify-center`}>
+                      <div className={`w-full h-full rounded-full border-4 border-yellow-700 shadow-xl bg-gradient-to-br ${rankColors[i]} flex items-center justify-center`}>
                         <Image
                           src={user.profile_image_url ? user.profile_image_url : '/default-profile.png'}
                           alt="Profile"
                           width={avatarSize}
                           height={avatarSize}
-                          className={`rounded-full object-cover w-full h-full`} 
+                          className={`rounded-full object-cover w-full h-full border-2 border-[#8B0000]`} 
                         />
                       </div>
-                      <span className="absolute -top-6 left-1/2 -translate-x-1/2">{icon}</span>
+                      <span className="absolute -top-8 left-1/2 -translate-x-1/2">{icon}</span>
                     </div>
                     <a
                       href={`/profile/${user.id}`}
-                      className="font-bold text-base md:text-lg text-white drop-shadow transition-transform duration-200 hover:scale-110 hover:drop-shadow-lg hover:text-yellow-200 cursor-pointer"
+                      className="font-bold text-base sm:text-lg md:text-xl text-[#8B0000] drop-shadow transition-transform duration-200 hover:scale-110 hover:drop-shadow-lg hover:text-yellow-700 cursor-pointer font-serif max-w-full text-center break-words"
+                      style={{fontFamily: 'Georgia, serif'}}
                     >
                       {user.username}
                     </a>
-                    <span className="text-yellow-200 font-bold text-sm md:text-base flex items-center gap-1">{user.kolam_karma} Karma</span>
+                    <span className="text-yellow-700 font-bold text-sm sm:text-base md:text-lg flex items-center gap-1 font-serif max-w-full text-center break-words">{user.kolam_karma} Karma</span>
                   </div>
                 );
               })}
@@ -90,28 +107,28 @@ export default function LeaderboardPage() {
           )}
           {/* Rest of leaderboard in two columns */}
           {leaderboard.length > 3 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6 w-full">
               {leaderboard.slice(3).map((user, idx) => (
                 <div
                   key={user.id}
-                  className="flex items-center gap-2 md:gap-4 px-2 py-2 md:px-4 md:py-3 rounded-xl shadow-lg bg-card border border-blue-100/20"
+                  className="flex items-center gap-2 sm:gap-3 md:gap-5 px-2 py-2 sm:px-3 sm:py-3 md:px-5 md:py-4 rounded-xl shadow-lg bg-gradient-to-r from-[#fff8e1] to-[#ffe4b5] border-2 border-yellow-700 relative w-full max-w-full overflow-hidden"
                 >
-                  <span className="font-extrabold text-base md:text-xl text-white">#{idx + 4}</span>
+                  <span className="font-extrabold text-base sm:text-lg md:text-2xl text-[#8B0000] font-serif">#{idx + 4}</span>
                   <Image
                     src={user.profile_image_url ? user.profile_image_url : '/default-profile.png'}
                     alt="Profile"
-                    width={40}
-                    height={40}
-                    className="h-10 w-10 md:h-12 md:w-12 rounded-full border-2 border-blue-200 shadow-md object-cover bg-blue-50"
+                    width={44}
+                    height={44}
+                    className="h-10 w-10 sm:h-11 sm:w-11 md:h-14 md:w-14 rounded-full border-2 border-yellow-700 shadow-md object-cover bg-[#fff8e1]"
                   />
                   <a
                     href={`/profile/${user.id}`}
-                    className="font-semibold text-base md:text-lg text-white drop-shadow transition-transform duration-200 hover:scale-110 hover:drop-shadow-lg hover:text-yellow-200 cursor-pointer"
+                    className="font-semibold text-sm sm:text-lg md:text-xl text-[#8B0000] drop-shadow transition-transform duration-200 hover:scale-110 hover:drop-shadow-lg hover:text-yellow-700 cursor-pointer font-serif max-w-full text-center break-words"
+                    style={{fontFamily: 'Georgia, serif'}}
                   >
                     {user.username}
                   </a>
-                  <span className="ml-auto text-yellow-600 font-bold text-sm md:text-lg flex items-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="inline-block text-yellow-400"><path d="M12 17.75L18.2 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.44 4.73L5.8 21z"/></svg>
+                  <span className="ml-auto text-yellow-700 font-bold text-xs sm:text-base md:text-lg flex items-center gap-1 font-serif max-w-full text-center break-words">
                     {user.kolam_karma} Karma
                   </span>
                 </div>
