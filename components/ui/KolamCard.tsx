@@ -8,9 +8,10 @@ interface KolamCardProps {
   buttonHref?: string;
   list?: string[];
   icon?: React.ReactNode;
+  disabled?: boolean;
 }
 
-export function KolamCard({ title, description, buttonText, buttonHref, list, icon }: KolamCardProps) {
+export function KolamCard({ title, description, buttonText, buttonHref, list, icon, disabled }: KolamCardProps) {
   return (
     <div
       className="card kolam-card-shine"
@@ -88,14 +89,14 @@ export function KolamCard({ title, description, buttonText, buttonHref, list, ic
           margin-right: 0.5em;
         }
       `}</style>
-      {buttonHref ? (
+      {buttonHref && !disabled ? (
         <a href={buttonHref} style={{ textDecoration: 'none', width: '100%' }}>
           <button className="kolam-card-btn">
             {buttonText}
           </button>
         </a>
       ) : (
-        <button className="kolam-card-btn">
+        <button className="kolam-card-btn" disabled={disabled} style={disabled ? {background:'#eee',color:'#aaa',borderColor:'#ccc',cursor:'not-allowed',boxShadow:'none'} : {}}>
           {buttonText}
         </button>
       )}
