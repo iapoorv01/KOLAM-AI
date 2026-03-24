@@ -28,7 +28,7 @@ export const dynamic = 'force-dynamic'
 export async function POST(req: NextRequest) {
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY
   const GEMINI_URL = process.env.GEMINI_URL // optional full URL to proxy to
-  const GEMINI_MODEL = process.env.GEMINI_MODEL
+  const GEMINI_MODEL: string = process.env.GEMINI_MODEL ?? 'gemini-2.5-flash'
 
   if (!GEMINI_API_KEY && !GEMINI_URL) {
     return NextResponse.json({ error: 'Gemini not configured' }, { status: 501 })
