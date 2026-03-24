@@ -1,6 +1,5 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import Image from "next/image";
 
 interface FestivalEvent {
   summary: string;
@@ -129,7 +128,7 @@ export default function FestivalCalendar() {
               </button>
               {generatedKolam && (
                 <div className="mt-8 flex flex-col items-center gap-4">
-                  <Image src={generatedKolam} alt="Generated Kolam" width={176} height={176} className="w-44 h-44 object-contain border-4 border-yellow-400 rounded-2xl bg-yellow-50 shadow-xl" />
+                  <img src={generatedKolam} alt="Generated Kolam" className="w-44 h-44 object-contain border-4 border-yellow-400 rounded-2xl bg-yellow-50 shadow-xl" />
                   <span className="text-base font-bold text-yellow-700 font-serif">Your Festival Kolam</span>
                   <div className="flex gap-4 mt-2">
                     <button

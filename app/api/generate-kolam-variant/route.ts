@@ -47,7 +47,8 @@ export async function POST(req: Request) {
       throw new Error('GEMINI_API_KEY environment variable is not set');
     }
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-image-preview' });
+    const modelId = process.env.GEMINI_IMAGE_MODEL || 'gemini-2.5-flash-image';
+    const model = genAI.getGenerativeModel({ model: modelId });
     const result = await model.generateContent(prompt);
     let imageUrl = null;
     let details = '';

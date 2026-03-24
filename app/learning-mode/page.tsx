@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import Image from "next/image";
 
 
 type Dot = { x: number; y: number };
@@ -71,19 +70,16 @@ export default function LearningModePage() {
         <div className="mb-4 w-full flex flex-col items-center">
           <div className="grid grid-cols-5 gap-2 mb-2">
             {KOLAM_GALLERY.map((item, idx) => (
-              <Image
+              <img
                 key={item.id}
                 src={item.image}
                 alt={`Kolam ${item.id}`}
-                width={64}
-                height={64}
                 className={`rounded border-2 cursor-pointer w-16 h-16 object-contain transition-all ${selectedIdx === idx ? 'border-cyan-500 shadow-lg' : 'border-cyan-200 opacity-70 hover:opacity-100'}`}
                 onClick={() => { setSelectedIdx(idx); setStep(0); }}
-                onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                  const target = e.target as HTMLImageElement;
-                  target.onerror = null;
-                  target.src = "/default-profile.png";
-                  target.alt = "Image not found";
+                onError={e => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = "/default-profile.png";
+                  e.currentTarget.alt = "Image not found";
                 }}
               />
             ))}
